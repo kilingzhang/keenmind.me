@@ -12,7 +12,7 @@ function toAdapterUser(user: any) {
         id: user.id,
         email: user.email,
         emailVerified: user.email_verified,
-        name: user?.username || user?.nickname,
+        name: user?.nickname || user?.username,
         image: user.avatar,
     }
 }

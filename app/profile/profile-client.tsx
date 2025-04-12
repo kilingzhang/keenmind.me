@@ -7,7 +7,6 @@ import { useCallback, useMemo, useTransition } from 'react';
 import { toast } from 'sonner';
 import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount } from '@/lib/auth/actions';
 import { useRouter } from 'next/navigation';
-import router from "next/router";
 
 const PROVIDER_MAP = {
     github: {
@@ -153,7 +152,6 @@ interface ProfileClientProps {
 
 export default function ProfileClient({ user }: ProfileClientProps) {
     const [isPending, startTransition] = useTransition();
-
     const handleLogout = useCallback(() => {
         startTransition(async () => {
             try {
@@ -215,7 +213,7 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                             </div>
                             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt className="text-sm font-medium text-gray-500">Name</dt>
-                                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.name || 'Not set'}</dd>
+                                <dd className="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{user?.nickname || 'Not set'}</dd>
                             </div>
                             <div className="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt className="text-sm font-medium text-gray-500">Email</dt>

@@ -16,8 +16,8 @@ const ErrorHandler = dynamic(() => import('@/components/error-handler'), {
 
 
 export const metadata: Metadata = {
-  title: "keenmind.me",
-  description: "keenmind.me",
+  title: "犀知",
+  description: "犀知 智能学习流程 实现高效学习与能力提升",
 };
 
 export default function RootLayout({
