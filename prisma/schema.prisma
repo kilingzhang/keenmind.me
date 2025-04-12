@@ -29,8 +29,6 @@ model User {
     credentials              Credential[] // 认证凭证
     auth_accounts            AuthAccount[] // 第三方账号
     auth_sessions            AuthSession[] // 会话记录
-    settings                 UserSetting? // 用户配置
-    membership_subscriptions MembershipSubscription[] // 会员订阅
 
     // 审计字段
     created_at DateTime  @default(now())
@@ -150,76 +148,6 @@ model AuthVerificationToken {
     @@map("auth_verification_tokens")
 }
 
-// 用户配置表
-/// 存储用户个性化配置
-model UserSetting {
-    id      String @id @default(cuid())
-    user_id String @unique // 用户ID
-
-    // 配置项
-    custom_config Json? @default("{}") // 自定义配置项
-
-    // 关联用户
-    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-    // 审计字段
-    version    Int      @default(1) // 版本控制
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@map("user_settings")
-}
-
-// 会员套餐表
-/// 定义会员套餐
-model MembershipPlan {
-    id            String  @id @default(cuid())
-    plan_code     String
-    name          String  @db.VarChar(50)
-    locale        String  @db.VarChar(10)
-    price         Int
-    duration_days Int
-    description   String? @db.Text
-    benefits      Json    @default("[]")
-    is_enabled    Boolean @default(true)
-    sort_order    Int     @default(0)
-
-    // 关联
-    subscriptions MembershipSubscription[]
-
-    // 审计字段
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@unique([plan_code, locale])
-    @@index([locale, is_enabled, sort_order])
-    @@map("membership_plans")
-}
-
-// 会员订阅表
-/// 记录用户的会员订阅信息
-model MembershipSubscription {
-    id         String           @id @default(cuid())
-    user_id    String
-    plan_id    String
-    status     MembershipStatus @default(ACTIVE)
-    start_time DateTime
-    end_time   DateTime
-
-    // 关联
-    user User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-    plan MembershipPlan @relation(fields: [plan_id], references: [id])
-
-    // 审计字段
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@index([user_id])
-    @@index([status])
-    @@index([end_time])
-    @@map("membership_subscriptions")
-}
-
 // 枚举定义
 /// 用户状态
 enum UserStatus {
@@ -242,18 +170,4 @@ enum TokenType {
     EMAIL_VERIFICATION // 邮箱验证
     PHONE_VERIFICATION // 手机验证
     PASSWORD_RESET // 密码重置
-}
-
-/// 性别
-enum Gender {
-    MALE // 男
-    FEMALE // 女
-    OTHER // 其他
-}
-
-/// 会员状态
-enum MembershipStatus {
-    ACTIVE // 生效中
-    EXPIRED // 已过期
-    CANCELLED // 已取消
 }
