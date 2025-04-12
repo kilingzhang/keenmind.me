@@ -1,0 +1,259 @@
+datasource db {
+    provider  = "postgresql"
+    url       = env("DATABASE_URL")
+    directUrl = env("DIRECT_DATABASE_URL")
+}
+
+generator client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["tracing","driverAdapters"]
+}
+
+// 用户表 - 存储核心用户信息
+/// 用户核心信息表,存储基础数据和状态
+model User {
+    id             String    @id @default(cuid())
+    name           String?   @db.VarChar(50) // 用户名
+    nickname       String?   @db.VarChar(50) // 昵称
+    email          String?   @db.VarChar(100) // 邮箱
+    phone          String?   @db.VarChar(20) // 手机号
+    email_verified DateTime? // 邮箱验证时间
+    phone_verified DateTime? // 手机验证时间
+    image          String?   @db.VarChar(255) // 头像URL
+    bio            String?   @db.Text // 个人简介
+
+    // 用户状态
+    status UserStatus @default(ACTIVE)
+
+    // 关联表
+    credentials              Credential[] // 认证凭证
+    auth_accounts            AuthAccount[] // 第三方账号
+    auth_sessions            AuthSession[] // 会话记录
+    settings                 UserSetting? // 用户配置
+    membership_subscriptions MembershipSubscription[] // 会员订阅
+
+    // 审计字段
+    created_at DateTime  @default(now())
+    updated_at DateTime  @updatedAt
+    deleted_at DateTime? // 软删除
+    created_ip String?   @db.VarChar(50) // 创建IP
+    updated_ip String?   @db.VarChar(50) // 更新IP
+
+    @@unique([email, deleted_at])
+    @@unique([phone, deleted_at]) 
+    @@index([status])
+    @@index([deleted_at])
+    @@map("users")
+}
+
+// 认证凭证表 - 存储登录凭证
+/// 存储用户的各种认证凭证信息
+model Credential {
+    id              String         @id @default(cuid())
+    user_id         String // 关联用户ID
+    type            CredentialType // 凭证类型
+    value           String // 凭证值(加密存储)
+    salt            String? // 加密盐值
+    encryption_type String? // 加密方式
+    expires_at      DateTime? // 凭证过期时间
+
+    // 安全相关
+    failed_attempts Int       @default(0) // 失败尝试次数
+    last_failed_at  DateTime? // 最后失败时间
+    locked_until    DateTime? // 锁定截止时间
+
+    // 关联用户
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    // 审计字段
+    version    Int      @default(1)
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+    created_ip String?  @db.VarChar(50)
+
+    @@unique([user_id, type])
+    @@index([type])
+    @@map("credentials")
+}
+
+// 第三方账号表
+/// 存储第三方登录账号信息
+model AuthAccount {
+    id                  String  @id @default(cuid())
+    user_id             String
+    type                String // 账号类型(oauth/email等)
+    provider            String // 提供商(google/apple等)
+    provider_account_id String // 提供商账号ID
+    refresh_token       String? @db.Text
+    access_token        String? @db.Text
+    expires_at          Int?
+    token_type          String?
+    scope               String?
+    id_token            String? @db.Text
+    session_state       String?
+
+    // 安全相关
+    encryption_type String? // token加密方式
+
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    // 审计字段
+    version    Int      @default(1)
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([provider, provider_account_id])
+    @@index([provider])
+    @@index([user_id])
+    @@map("auth_accounts")
+}
+
+// 会话表
+/// 存储用户会话信息
+model AuthSession {
+    id            String   @id @default(cuid())
+    session_token String   @unique
+    user_id       String
+    expires       DateTime
+    user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    // 扩展字段
+    user_agent String?  @db.Text // 用户代理
+    ip_address String?  @db.VarChar(50) // IP地址
+    device_id  String?  @db.VarChar(100) // 设备ID
+    is_mobile  Boolean? // 是否移动端
+
+    // 审计字段
+    created_at DateTime @default(now())
+
+    @@index([expires])
+    @@index([user_id])
+    @@map("auth_sessions")
+}
+
+// 验证令牌表
+/// 存储各类验证令牌
+model AuthVerificationToken {
+    identifier String
+    token      String    @unique
+    expires    DateTime
+    type       TokenType // 令牌类型
+    used       Boolean   @default(false) // 是否已使用
+    used_at    DateTime? // 使用时间
+
+    // 审计字段
+    created_at DateTime @default(now())
+    created_ip String?  @db.VarChar(50)
+
+    @@unique([identifier, token])
+    @@index([expires])
+    @@map("auth_verification_tokens")
+}
+
+// 用户配置表
+/// 存储用户个性化配置
+model UserSetting {
+    id      String @id @default(cuid())
+    user_id String @unique // 用户ID
+
+    // 配置项
+    custom_config Json? @default("{}") // 自定义配置项
+
+    // 关联用户
+    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+    // 审计字段
+    version    Int      @default(1) // 版本控制
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@map("user_settings")
+}
+
+// 会员套餐表
+/// 定义会员套餐
+model MembershipPlan {
+    id            String  @id @default(cuid())
+    plan_code     String
+    name          String  @db.VarChar(50)
+    locale        String  @db.VarChar(10)
+    price         Int
+    duration_days Int
+    description   String? @db.Text
+    benefits      Json    @default("[]")
+    is_enabled    Boolean @default(true)
+    sort_order    Int     @default(0)
+
+    // 关联
+    subscriptions MembershipSubscription[]
+
+    // 审计字段
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@unique([plan_code, locale])
+    @@index([locale, is_enabled, sort_order])
+    @@map("membership_plans")
+}
+
+// 会员订阅表
+/// 记录用户的会员订阅信息
+model MembershipSubscription {
+    id         String           @id @default(cuid())
+    user_id    String
+    plan_id    String
+    status     MembershipStatus @default(ACTIVE)
+    start_time DateTime
+    end_time   DateTime
+
+    // 关联
+    user User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    plan MembershipPlan @relation(fields: [plan_id], references: [id])
+
+    // 审计字段
+    created_at DateTime @default(now())
+    updated_at DateTime @updatedAt
+
+    @@index([user_id])
+    @@index([status])
+    @@index([end_time])
+    @@map("membership_subscriptions")
+}
+
+// 枚举定义
+/// 用户状态
+enum UserStatus {
+    ACTIVE // 正常
+    INACTIVE // 未激活
+    LOCKED // 锁定
+    BANNED // 封禁
+}
+
+/// 认证凭证类型
+enum CredentialType {
+    PASSWORD // 密码
+    PHONE // 手机
+    EMAIL // 邮箱
+    CHANNEL_CODE // 渠道码
+}
+
+/// 验证令牌类型
+enum TokenType {
+    EMAIL_VERIFICATION // 邮箱验证
+    PHONE_VERIFICATION // 手机验证
+    PASSWORD_RESET // 密码重置
+}
+
+/// 性别
+enum Gender {
+    MALE // 男
+    FEMALE // 女
+    OTHER // 其他
+}
+
+/// 会员状态
+enum MembershipStatus {
+    ACTIVE // 生效中
+    EXPIRED // 已过期
+    CANCELLED // 已取消
+}
