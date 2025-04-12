@@ -12,7 +12,7 @@ export class UserService {
      */
     static async getUsers() {
         try {
-            return await prisma().user.findMany({
+            return await prisma().users.findMany({
                 where: {
                     deleted_at: null
                 }
@@ -25,9 +25,9 @@ export class UserService {
     /**
      * 根据ID获取用户
      */
-    static async getUserById(id: string): Promise<any> {
+    static async getUserById(id: number): Promise<any> {
         try {
-            const user = await prisma().user.findFirst({
+            const user = await prisma().users.findFirst({
                 where: {
                     id,
                     deleted_at: null
@@ -49,24 +49,27 @@ export class UserService {
         try {
             if (!data.email) throw new ValidationError('Email is required');
 
-            return await prisma().user.create({
-                data: {
-                    ...data,
-                    status: data.status || UserStatus.ACTIVE,
-                },
+            const userData = {
+                ...data,
+                status: data.status || UserStatus.ACTIVE,
+            };
+
+            return await prisma().users.create({
+                data: userData,
             });
         } catch (error) {
             if (error instanceof ValidationError) throw error;
-            throw new DatabaseError('Failed to create user ' + (error as Error).message, 'CREATE_ERROR', error);
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            throw new DatabaseError('Failed to create user ' + errorMessage, 'CREATE_ERROR', error);
         }
     }
 
     /**
      * 获取活跃用户
      */
-    static async getActiveUserById(id: string) {
+    static async getActiveUserById(id: number) {
         try {
-            const user = await prisma().user.findFirst({
+            const user = await prisma().users.findFirst({
                 where: {
                     id,
                     ...ACTIVE_USER_FILTER,
@@ -85,7 +88,7 @@ export class UserService {
      */
     static async getUserByEmail(email: string) {
         try {
-            return await prisma().user.findFirst({
+            return await prisma().users.findFirst({
                 where: {
                     email,
                     ...ACTIVE_USER_FILTER,
@@ -99,9 +102,9 @@ export class UserService {
     /**
      * 更新用户信息
      */
-    static async updateUser(id: string, data: Prisma.UserUpdateInput) {
+    static async updateUser(id: number, data: Prisma.usersUpdateInput) {
         try {
-            return await prisma().user.update({
+            return await prisma().users.update({
                 where: {
                     id,
                     deleted_at: null
@@ -116,15 +119,16 @@ export class UserService {
     /**
      * 删除用户（软删除）
      */
-    static async deepDeleteUser(id: string) {
+    static async deepDeleteUser(id: number) {
         try {
-            return await prisma().user.update({
+            return await prisma().users.update({
                 where: {
                     id,
                     deleted_at: null
                 },
                 data: {
                     deleted_at: new Date(),
+                    status: 'INACTIVE',
                     auth_sessions: {
                         deleteMany: {},
                     },
@@ -138,15 +142,16 @@ export class UserService {
     /**
      * 删除用户（软删除）
      */
-    static async deleteUser(id: string) {
+    static async deleteUser(id: number) {
         try {
-            return await prisma().user.update({
+            return await prisma().users.update({
                 where: {
                     id,
                     deleted_at: null
                 },
                 data: {
                     deleted_at: new Date(),
+                    status: 'INACTIVE',
                 },
             });
         } catch (error) {

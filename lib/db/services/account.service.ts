@@ -10,7 +10,7 @@ export class AccountService {
      */
     static async getUserByAccount(provider: string, providerAccountId: string) {
         try {
-            return await prisma().authAccount.findUnique({
+            return await prisma().auth_accounts.findUnique({
                 where: {
                     provider_provider_account_id: {
                         provider,
@@ -18,7 +18,7 @@ export class AccountService {
                     }
                 },
                 select: {
-                    user: true
+                    users: true
                 },
             });
         } catch (error) {
@@ -32,10 +32,10 @@ export class AccountService {
     static async linkAccount(data: LinkAccountData) {
         try {
             const { user_id, ...accountData } = data;
-            return await prisma().authAccount.create({
+            return await prisma().auth_accounts.create({
                 data: {
                     ...accountData,
-                    user: {
+                    users: {
                         connect: { id: user_id }
                     }
                 }
@@ -50,7 +50,7 @@ export class AccountService {
      */
     static async unlinkAccount(provider: string, providerAccountId: string) {
         try {
-            await prisma().authAccount.delete({
+            await prisma().auth_accounts.delete({
                 where: {
                     provider_provider_account_id: {
                         provider,

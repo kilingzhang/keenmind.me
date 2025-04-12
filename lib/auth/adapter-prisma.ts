@@ -5,14 +5,15 @@ import {
     SessionService,
     VerificationTokenService
 } from "@/lib/db/services";
+import { getClientIp } from "@/lib/ip";
 
 function toAdapterUser(user: any) {
     return {
         id: user.id,
         email: user.email,
         emailVerified: user.email_verified,
-        name: user.name,
-        image: user.image,
+        name: user?.username || user?.nickname,
+        image: user.avatar,
     }
 }
 
@@ -40,13 +41,13 @@ export function PrismaAdapter(): Adapter {
             const dbUser = await UserService.createUser({
                 email: data.email,
                 email_verified: data.emailVerified,
-                name: data.name,
-                image: data.image,
+                nickname: data.name,
+                avatar: data.image,
             })
             return toAdapterUser(dbUser)
         },
         getUser: async (id) => {
-            const dbUser = await UserService.getActiveUserById(id)
+            const dbUser = await UserService.getActiveUserById(Number(id))
             return dbUser ? toAdapterUser(dbUser) : null
         },
         getUserByEmail: async (email) => {
@@ -55,21 +56,21 @@ export function PrismaAdapter(): Adapter {
         },
         getUserByAccount: async ({ provider, providerAccountId }) => {
             const result = await AccountService.getUserByAccount(provider, providerAccountId)
-            if (!result?.user) return null
-            return toAdapterUser(result.user)
+            if (!result?.users) return null
+            return toAdapterUser(result.users)
         },
         updateUser: async ({ id, ...data }) => {
-            const dbUser = await UserService.updateUser(id!, {
+            const dbUser = await UserService.updateUser(Number(id!), {
                 email: data.email,
                 email_verified: data.emailVerified,
-                name: data.name,
-                image: data.image,
+                nickname: data.name,
+                avatar: data.image,
             })
             return toAdapterUser(dbUser)
         },
 
         deleteUser: async (id) => {
-            const dbUser = await UserService.deepDeleteUser(id)
+            const dbUser = await UserService.deepDeleteUser(Number(id))
             return toAdapterUser(dbUser)
         },
 
@@ -85,7 +86,7 @@ export function PrismaAdapter(): Adapter {
                 scope: data.scope,
                 id_token: data.id_token,
                 session_state: data.session_state as string | null,
-                user_id: data.userId,
+                user_id: Number(data.userId),
             })
             return toAdapterAccount(dbAccount)
         },
@@ -94,7 +95,7 @@ export function PrismaAdapter(): Adapter {
         },
         getSessionAndUser: async (sessionToken) => {
             const result = await SessionService.getSessionAndUser(sessionToken)
-            if (!result) return null
+            if (!result || !result.user) return null
 
             return {
                 user: toAdapterUser(result.user),
@@ -108,7 +109,7 @@ export function PrismaAdapter(): Adapter {
 
             const dbSession = await SessionService.createSession({
                 session_token: data.sessionToken,
-                user_id: data.userId,
+                user_id: Number(data.userId),
                 expires: data.expires,
                 user_agent: userAgent,
                 ip_address: ipAddress,
@@ -127,10 +128,10 @@ export function PrismaAdapter(): Adapter {
             return toAdapterSession(dbSession)
         },
         createVerificationToken: async (data) => {
-            const ipAddress = ""
+            const ipAddress = getClientIp();
             return await VerificationTokenService.createVerificationToken({
                 ...data,
-                created_ip: ipAddress,
+                created_ip: ipAddress !== 'unknown' ? ipAddress : undefined,
             })
         },
         useVerificationToken: async ({ identifier, token }) => {

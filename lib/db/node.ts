@@ -1,6 +1,7 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '@prisma/client';
 import { Pool } from 'pg';
+import { createPrismaWrapper } from './wrapper';
 
 // 配置连接池参数
 const pool = new Pool({
@@ -31,69 +32,51 @@ const handlePrismaError = (error: any) => {
         throw new Error('唯一约束冲突');
     } else if (errorCode === 'P2025') {
         throw new Error('记录不存在');
-    } else if (errorCode.startsWith('P2')) {
+    } else if (errorCode && errorCode.startsWith('P2')) {
         throw new Error('数据库约束错误');
     }
 
     throw error;
 };
 
-export const createPrismaClient = () => {
-    const prisma = new PrismaClient({
+export function createPrismaClient() {
+    const prismaBase = new PrismaClient({
         adapter,
-        log: [
-            {
-                emit: 'event',
-                level: 'query',
-            },
-            {
-                emit: 'event',
-                level: 'error',
-            },
-            {
-                emit: 'event',
-                level: 'info',
-            },
-            {
-                emit: 'event',
-                level: 'warn',
-            },
-        ],
+        log: ['query', 'info', 'warn', 'error'],
         errorFormat: 'pretty',
-    })
-    //     .$extends(
-    //     // withOptimize({ apiKey: getRequestEnv('OPTIMIZE_API_KEY') })
-    // );
+    });
 
     // 添加全局日志处理
     // @ts-ignore
-    prisma.$on('query', (e: any) => {
+    prismaBase.$on('query', (e: any) => {
         const timestamp = new Date().toISOString();
         console.log(`[${timestamp}] Query | Duration: ${e.duration}ms | ${e.query} | Params: ${e.params}`);
     });
     // @ts-ignore
-    prisma.$on('info', (e: any) => {
+    prismaBase.$on('info', (e: any) => {
         const timestamp = new Date().toISOString();
         console.log(`[${timestamp}] Info | ${e.message}`);
     });
     // @ts-ignore
-    prisma.$on('warn', (e: any) => {
+    prismaBase.$on('warn', (e: any) => {
         const timestamp = new Date().toISOString();
         console.warn(`[${timestamp}] Warning | ${e.message}`);
     });
     // @ts-ignore
-    prisma.$on('error', (e: any) => {
+    prismaBase.$on('error', (e: any) => {
         handlePrismaError(e);
     });
 
     // 添加全局错误处理
     // @ts-ignore
-    prisma.$use(async (params: any, next: any) => {
+    prismaBase.$use(async (params: any, next: any) => {
         try {
             return await next(params);
         } catch (error: any) {
             handlePrismaError(error);
         }
     });
-    return prisma
+
+    // 使用包装器替代中间件
+    return createPrismaWrapper(prismaBase);
 }

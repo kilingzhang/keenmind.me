@@ -27,6 +27,7 @@ export class AuthError extends Error {
 // 认证响应类型
 export interface AuthResponse {
     success: boolean;
+    message?: string;
     error?: {
         code: string;
         message: string;

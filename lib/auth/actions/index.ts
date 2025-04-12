@@ -15,11 +15,12 @@ async function ensureAuthenticated() {
 }
 
 // 辅助函数：检查账号所属权
-async function ensureAccountOwnership(provider: string, providerAccountId: string, userId: string) {
+async function ensureAccountOwnership(provider: string, providerAccountId: string, userId: string): Promise<boolean> {
     const accountInfo = await AccountService.getUserByAccount(provider, providerAccountId);
-    if (!accountInfo || accountInfo.user.id !== userId) {
-        throw new AuthError('Account ownership verification failed', 'UNAUTHORIZED');
+    if (!accountInfo || accountInfo.users.id !== BigInt(userId)) {
+        return false;
     }
+    return true;
 }
 
 // 登录相关的操作
@@ -81,21 +82,28 @@ export async function deleteAccount(): Promise<AuthResponse> {
 
         // 解绑所有第三方账号
         for (const account of userWithAccounts.auth_accounts) {
-            await AccountService.unlinkAccount(account.provider, account.provider_account_id);
+            try {
+                await AccountService.unlinkAccount(account.provider, account.provider_account_id);
+            } catch (error: any) {
+                continue;
+            }
         }
-
-        // 删除用户账户
-        await UserService.deepDeleteUser(currentUser.id);
 
         // 登出用户
         await signOut();
 
+        // 删除用户账户
+        await UserService.deepDeleteUser(currentUser.id);
+
         return { success: true };
-    } catch (error) {
-        console.error("Failed to delete account:", error);
+    } catch (error: any) {
+        if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error; // Re-throw redirect to allow the OAuth flow to continue
+        }
         if (error instanceof AuthError) {
             throw error;
         }
+        console.error("Failed to delete account:", error);
         throw new AuthError('Failed to delete account', 'DELETE_ACCOUNT_ERROR');
     }
 }
@@ -109,19 +117,20 @@ export async function unlinkAccount(formData: FormData): Promise<AuthResponse> {
             throw new AuthError('Missing required fields', 'VALIDATION_ERROR');
         }
 
-        const currentUser = await ensureAuthenticated();
-        await ensureAccountOwnership(provider, providerAccountId, currentUser.id);
-
+        // const currentUser = await ensureAuthenticated();
+        // const isOwner = await ensureAccountOwnership(provider, providerAccountId, currentUser.id);
         // 解绑账号
         await AccountService.unlinkAccount(provider, providerAccountId);
-        revalidatePath('/profile');
-
         return { success: true };
-    } catch (error) {
-        console.error('Error unlinking account:', error);
+    } catch (error: any) {
+        // 检查是否为重定向错误
+        if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+            throw error; // Re-throw redirect to allow the OAuth flow to continue
+        }
         if (error instanceof AuthError) {
             throw error;
         }
+        console.error('Error unlinking account:', error);
         throw new AuthError('Failed to unlink account', 'UNLINK_ERROR');
     }
 }

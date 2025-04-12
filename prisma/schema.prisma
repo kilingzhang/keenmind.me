@@ -1,173 +1,264 @@
-datasource db {
-    provider  = "postgresql"
-    url       = env("DATABASE_URL")
-    directUrl = env("DIRECT_DATABASE_URL")
-}
-
 generator client {
-    provider        = "prisma-client-js"
-    previewFeatures = ["tracing","driverAdapters"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
-// 用户表 - 存储核心用户信息
-/// 用户核心信息表,存储基础数据和状态
-model User {
-    id             String    @id @default(cuid())
-    name           String?   @db.VarChar(50) // 用户名
-    nickname       String?   @db.VarChar(50) // 昵称
-    email          String?   @db.VarChar(100) // 邮箱
-    phone          String?   @db.VarChar(20) // 手机号
-    email_verified DateTime? // 邮箱验证时间
-    phone_verified DateTime? // 手机验证时间
-    image          String?   @db.VarChar(255) // 头像URL
-    bio            String?   @db.Text // 个人简介
-
-    // 用户状态
-    status UserStatus @default(ACTIVE)
-
-    // 关联表
-    credentials              Credential[] // 认证凭证
-    auth_accounts            AuthAccount[] // 第三方账号
-    auth_sessions            AuthSession[] // 会话记录
-
-    // 审计字段
-    created_at DateTime  @default(now())
-    updated_at DateTime  @updatedAt
-    deleted_at DateTime? // 软删除
-    created_ip String?   @db.VarChar(50) // 创建IP
-    updated_ip String?   @db.VarChar(50) // 更新IP
-
-    @@unique([email, deleted_at])
-    @@unique([phone, deleted_at]) 
-    @@index([status])
-    @@index([deleted_at])
-    @@map("users")
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
 }
 
-// 认证凭证表 - 存储登录凭证
-/// 存储用户的各种认证凭证信息
-model Credential {
-    id              String         @id @default(cuid())
-    user_id         String // 关联用户ID
-    type            CredentialType // 凭证类型
-    value           String // 凭证值(加密存储)
-    salt            String? // 加密盐值
-    encryption_type String? // 加密方式
-    expires_at      DateTime? // 凭证过期时间
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model ability_points {
+  id              BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
+  slug            String                   @unique @db.Citext
+  domain_zh       String                   @default("")
+  domain_en       String                   @default("")
+  name_zh         String                   @default("")
+  name_en         String                   @default("")
+  description_zh  String?
+  description_en  String?
+  aliases         Json                     @default("{}")
+  tags            Json                     @default("{}")
+  search_text_tsv Unsupported("tsvector")?
+  deleted_at      DateTime?                @db.Timestamptz(6)
+  created_at      DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime                 @default(now()) @db.Timestamptz(6)
 
-    // 安全相关
-    failed_attempts Int       @default(0) // 失败尝试次数
-    last_failed_at  DateTime? // 最后失败时间
-    locked_until    DateTime? // 锁定截止时间
-
-    // 关联用户
-    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-    // 审计字段
-    version    Int      @default(1)
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-    created_ip String?  @db.VarChar(50)
-
-    @@unique([user_id, type])
-    @@index([type])
-    @@map("credentials")
+  @@index([aliases], map: "idx_ability_points_aliases", type: Gin)
+  @@index([search_text_tsv], map: "idx_ability_points_search", type: Gin)
+  @@index([tags], map: "idx_ability_points_tags", type: Gin)
 }
 
-// 第三方账号表
-/// 存储第三方登录账号信息
-model AuthAccount {
-    id                  String  @id @default(cuid())
-    user_id             String
-    type                String // 账号类型(oauth/email等)
-    provider            String // 提供商(google/apple等)
-    provider_account_id String // 提供商账号ID
-    refresh_token       String? @db.Text
-    access_token        String? @db.Text
-    expires_at          Int?
-    token_type          String?
-    scope               String?
-    id_token            String? @db.Text
-    session_state       String?
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model auth_accounts {
+  id                  BigInt   @id @default(dbgenerated("generate_numeric_id(12)"))
+  user_id             BigInt
+  type                String
+  provider            String
+  provider_account_id String
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
+  encryption_type     String?
+  version             Int      @default(1)
+  created_at          DateTime @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime @default(now()) @db.Timestamptz(6)
+  users               users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-    // 安全相关
-    encryption_type String? // token加密方式
-
-    user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-    // 审计字段
-    version    Int      @default(1)
-    created_at DateTime @default(now())
-    updated_at DateTime @updatedAt
-
-    @@unique([provider, provider_account_id])
-    @@index([provider])
-    @@index([user_id])
-    @@map("auth_accounts")
+  @@unique([provider, provider_account_id])
+  @@index([provider], map: "idx_auth_accounts_provider")
+  @@index([user_id], map: "idx_auth_accounts_user_id")
 }
 
-// 会话表
-/// 存储用户会话信息
-model AuthSession {
-    id            String   @id @default(cuid())
-    session_token String   @unique
-    user_id       String
-    expires       DateTime
-    user          User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model auth_sessions {
+  id            BigInt   @id @default(dbgenerated("generate_numeric_id(12)"))
+  session_token String   @unique
+  user_id       BigInt
+  expires       DateTime @db.Timestamptz(6)
+  user_agent    String?
+  ip_address    String?  @db.VarChar(50)
+  device_id     String?  @db.VarChar(100)
+  is_mobile     Boolean?
+  created_at    DateTime @default(now()) @db.Timestamptz(6)
+  users         users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-    // 扩展字段
-    user_agent String?  @db.Text // 用户代理
-    ip_address String?  @db.VarChar(50) // IP地址
-    device_id  String?  @db.VarChar(100) // 设备ID
-    is_mobile  Boolean? // 是否移动端
-
-    // 审计字段
-    created_at DateTime @default(now())
-
-    @@index([expires])
-    @@index([user_id])
-    @@map("auth_sessions")
+  @@index([expires], map: "idx_auth_sessions_expires")
+  @@index([user_id], map: "idx_auth_sessions_user_id")
 }
 
-// 验证令牌表
-/// 存储各类验证令牌
-model AuthVerificationToken {
-    identifier String
-    token      String    @unique
-    expires    DateTime
-    type       TokenType // 令牌类型
-    used       Boolean   @default(false) // 是否已使用
-    used_at    DateTime? // 使用时间
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model auth_verification_tokens {
+  identifier String
+  token      String    @unique
+  expires    DateTime  @db.Timestamptz(6)
+  type       TokenType
+  used       Boolean   @default(false)
+  used_at    DateTime? @db.Timestamptz(6)
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  created_ip String?   @db.VarChar(50)
 
-    // 审计字段
-    created_at DateTime @default(now())
-    created_ip String?  @db.VarChar(50)
-
-    @@unique([identifier, token])
-    @@index([expires])
-    @@map("auth_verification_tokens")
+  @@unique([identifier, token])
+  @@index([expires], map: "idx_auth_verification_tokens_expires")
 }
 
-// 枚举定义
-/// 用户状态
-enum UserStatus {
-    ACTIVE // 正常
-    INACTIVE // 未激活
-    LOCKED // 锁定
-    BANNED // 封禁
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model credentials {
+  id              BigInt         @id @default(dbgenerated("generate_numeric_id(12)"))
+  user_id         BigInt
+  type            CredentialType
+  value           String
+  salt            String?
+  encryption_type String?
+  expires_at      DateTime?      @db.Timestamptz(6)
+  failed_attempts Int            @default(0)
+  last_failed_at  DateTime?      @db.Timestamptz(6)
+  locked_until    DateTime?      @db.Timestamptz(6)
+  version         Int            @default(1)
+  created_ip      String?        @db.VarChar(50)
+  created_at      DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime       @default(now()) @db.Timestamptz(6)
+  users           users          @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([user_id, type])
+  @@index([type], map: "idx_credentials_type")
 }
 
-/// 认证凭证类型
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model knowledge_points {
+  id                BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
+  slug              String                   @unique @db.Citext
+  name_zh           String                   @default("")
+  name_en           String                   @default("")
+  definition_zh     String?
+  definition_en     String?
+  aliases           Json                     @default("{}")
+  tags              Json                     @default("{}")
+  ability_point_ids Json                     @default("[]")
+  search_text_tsv   Unsupported("tsvector")?
+  deleted_at        DateTime?                @db.Timestamptz(6)
+  created_at        DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime                 @default(now()) @db.Timestamptz(6)
+  question_variants question_variants[]
+
+  @@index([aliases], map: "idx_knowledge_points_aliases", type: Gin)
+  @@index([search_text_tsv], map: "idx_knowledge_points_search", type: Gin)
+  @@index([tags], map: "idx_knowledge_points_tags", type: Gin)
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model question_variants {
+  id                         BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
+  type                       String                   @default("open-ended") @db.VarChar(20)
+  language                   String?                  @db.VarChar(20)
+  difficulty                 String                   @default("medium") @db.VarChar(10)
+  source                     String?                  @default("official") @db.VarChar(50)
+  primary_knowledge_point_id BigInt
+  auxiliary_knowledge_points Json                     @default("[]")
+  tags                       Json                     @default("{}")
+  title_zh                   String                   @default("")
+  title_en                   String                   @default("")
+  description_zh             String?
+  description_en             String?
+  search_text_tsv            Unsupported("tsvector")?
+  deleted_at                 DateTime?                @db.Timestamptz(6)
+  created_at                 DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime                 @default(now()) @db.Timestamptz(6)
+  knowledge_points           knowledge_points         @relation(fields: [primary_knowledge_point_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  standard_answers           standard_answers[]
+  user_answers               user_answers[]
+
+  @@index([difficulty], map: "idx_question_variants_difficulty")
+  @@index([language], map: "idx_question_variants_language")
+  @@index([search_text_tsv], map: "idx_question_variants_search", type: Gin)
+  @@index([tags], map: "idx_question_variants_tags", type: Gin)
+  @@index([type], map: "idx_question_variants_type")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model standard_answers {
+  id                  BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
+  question_id         BigInt
+  user_id             BigInt?
+  is_system           Boolean                  @default(false)
+  source              String                   @default("official") @db.VarChar(20)
+  is_featured         Boolean?                 @default(false)
+  used_as_primary     BigInt?                  @default(0)
+  upvotes             BigInt?                  @default(0)
+  bookmark            BigInt?                  @default(0)
+  answer_type         String?                  @default("explanation") @db.VarChar(20)
+  knowledge_point_ids Json                     @default("[]")
+  content_zh          String                   @default("")
+  content_en          String                   @default("")
+  search_text_tsv     Unsupported("tsvector")?
+  deleted_at          DateTime?                @db.Timestamptz(6)
+  created_at          DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime                 @default(now()) @db.Timestamptz(6)
+  question_variants   question_variants        @relation(fields: [question_id], references: [id], onUpdate: NoAction)
+  users               users?                   @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+
+  @@index([answer_type], map: "idx_standard_answers_answer_type")
+  @@index([is_featured], map: "idx_standard_answers_is_featured")
+  @@index([knowledge_point_ids], map: "idx_standard_answers_knowledge_points", type: Gin)
+  @@index([question_id], map: "idx_standard_answers_question_id")
+  @@index([search_text_tsv], map: "idx_standard_answers_search", type: Gin)
+  @@index([user_id], map: "idx_standard_answers_user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user_answers {
+  id                BigInt            @id @default(dbgenerated("generate_numeric_id(15)"))
+  user_id           BigInt
+  question_id       BigInt
+  input_language    String            @default("zh") @db.VarChar(10)
+  audio_url         String?
+  transcribed_text  String?
+  answer_text       String            @default("")
+  quality_score     Decimal?          @default(0.00) @db.Decimal(3, 2)
+  score_detail      Json?
+  created_at        DateTime?         @default(now()) @db.Timestamptz(6)
+  deleted_at        DateTime?         @db.Timestamptz(6)
+  updated_at        DateTime          @default(now()) @db.Timestamptz(6)
+  question_variants question_variants @relation(fields: [question_id], references: [id], onUpdate: NoAction)
+  users             users             @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+
+  @@index([quality_score], map: "idx_user_answers_quality_score")
+  @@index([question_id], map: "idx_user_answers_question_id")
+  @@index([user_id], map: "idx_user_answers_user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id               BigInt             @id @unique(map: "users_id_unique") @default(dbgenerated("generate_numeric_id(12)"))
+  username         String?            @db.VarChar(50)
+  nickname         String?            @db.VarChar(50)
+  email            String?            @db.VarChar(100)
+  phone            String?            @db.VarChar(20)
+  email_verified   DateTime?          @db.Timestamptz(6)
+  phone_verified   DateTime?          @db.Timestamptz(6)
+  avatar           String?
+  bio              String?
+  status           UserStatus         @default(ACTIVE)
+  created_ip       String?            @db.VarChar(50)
+  updated_ip       String?            @db.VarChar(50)
+  last_login_at    DateTime?          @db.Timestamptz(6)
+  extra            Json?              @default("{}")
+  deleted_at       DateTime?          @db.Timestamptz(6)
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  auth_accounts    auth_accounts[]
+  auth_sessions    auth_sessions[]
+  credentials      credentials[]
+  standard_answers standard_answers[]
+  user_answers     user_answers[]
+
+  @@index([deleted_at], map: "idx_users_deleted_at")
+  @@index([status], map: "idx_users_status")
+  @@index([username], map: "idx_users_username")
+}
+
 enum CredentialType {
-    PASSWORD // 密码
-    PHONE // 手机
-    EMAIL // 邮箱
-    CHANNEL_CODE // 渠道码
+  PASSWORD
+  PHONE
+  EMAIL
+  CHANNEL_CODE
 }
 
-/// 验证令牌类型
 enum TokenType {
-    EMAIL_VERIFICATION // 邮箱验证
-    PHONE_VERIFICATION // 手机验证
-    PASSWORD_RESET // 密码重置
+  EMAIL_VERIFICATION
+  PHONE_VERIFICATION
+  PASSWORD_RESET
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  LOCKED
+  BANNED
 }

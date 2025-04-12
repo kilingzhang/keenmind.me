@@ -1,11 +1,11 @@
-import { Prisma, UserStatus, TokenType } from "@prisma/client"
+import { UserStatus, TokenType } from "@prisma/client"
 
 // 用户相关接口
 export interface CreateUserData {
     email: string | null
     email_verified?: Date | null
-    name?: string | null
-    image?: string | null
+    nickname?: string | null
+    avatar?: string | null
     status?: UserStatus
 }
 
@@ -20,12 +20,12 @@ export interface LinkAccountData {
     scope?: string | null
     id_token?: string | null
     session_state?: string | null
-    user_id: string
+    user_id: number
 }
 
 export interface CreateSessionData {
     session_token: string
-    user_id: string
+    user_id: number
     expires: Date
     user_agent?: string | null
     ip_address?: string | null

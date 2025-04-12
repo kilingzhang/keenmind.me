@@ -2,10 +2,12 @@
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { LoadingButton } from '@/components/ui/loading-button';
-import { AuthAccount } from "@prisma/client";
+import { auth_accounts } from "@prisma/client";
 import { useCallback, useMemo, useTransition } from 'react';
 import { toast } from 'sonner';
 import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount } from '@/lib/auth/actions';
+import { useRouter } from 'next/navigation';
+import router from "next/router";
 
 const PROVIDER_MAP = {
     github: {
@@ -20,7 +22,7 @@ const PROVIDER_MAP = {
 
 interface ConnectedAccountButtonProps {
     provider: 'github' | 'wechat';
-    account: AuthAccount | undefined;
+    account: auth_accounts | undefined;
     user: any;
 }
 
@@ -34,13 +36,19 @@ export function ConnectedAccountButton({ provider, account }: ConnectedAccountBu
     const [isPending, startTransition] = useTransition();
     const isConnected = !!account;
     const providerName = PROVIDER_MAP[provider].name;
+    const router = useRouter();
 
     const handleUnlink = async (formData: FormData) => {
         startTransition(async () => {
             try {
                 await unlinkAccount(formData);
-            } catch (error) {
-                console.error('Failed to unlink account:', error);
+                toast.success(`${providerName} account unlinked successfully`);
+                router.refresh();
+            } catch (error: any) {
+                // 检查是否为重定向错误
+                if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+                    throw error; // Re-throw redirect to allow the OAuth flow to continue
+                }
                 toast.error(`Failed to unlink ${providerName} account`);
             }
         });
@@ -106,7 +114,7 @@ const formatDate = (date: string | Date) => {
 };
 
 export function ConnectedAccount({ provider, user }: ConnectedAccountProps) {
-    const account = user?.auth_accounts?.find((acc: AuthAccount) => acc.provider === provider);
+    const account = user?.auth_accounts?.find((acc: auth_accounts) => acc.provider === provider);
     const { name: providerName, icon: iconSrc } = PROVIDER_MAP[provider];
 
     return (
@@ -164,7 +172,10 @@ export default function ProfileClient({ user }: ProfileClientProps) {
             try {
                 await deleteAccount();
                 toast.success('Account deleted successfully');
-            } catch (error) {
+            } catch (error: any) {
+                if (error?.digest?.startsWith('NEXT_REDIRECT')) {
+                    throw error; // Re-throw redirect to allow the OAuth flow to continue
+                }
                 console.error('Failed to delete account:', error);
                 toast.error('Failed to delete account');
             }

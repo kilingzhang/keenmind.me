@@ -51,7 +51,7 @@ const createOptions = (): NextAuthConfig => {
         callbacks: {
             jwt: async ({ token, user, account, profile, trigger, }) => {
                 if (user) {
-                    token.user = await UserService.getUserById(user?.id as string)
+                    token.user = await UserService.getUserById(Number(user?.id as string))
                     token.trigger = trigger
                     token.sessionToken = generateUUID()
                 }

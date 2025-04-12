@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "env": "dotenv -e .dev.vars",
-    "dev": "bun run generate:node && bun run env -- next dev",
-    "build": "rm -rf .next && rm -rf .wrangler && rm -rf .vercel && ANALYZE=true dotenv -e .pro.vars -- next build",
+    "dev": "bunx prisma generate &&bun run generate:node && bun run env -- next dev",
+    "build": "rm -rf .next && rm -rf .wrangler && rm -rf .vercel && bunx prisma generate --no-engine && ANALYZE=true dotenv -e .pro.vars -- next build",
     "start": "bun run generate:node && bun run env -- next start",
     "lint": "next lint",
     "pages:build": "bun run generate:edge && bunx @cloudflare/next-on-pages",

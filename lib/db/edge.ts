@@ -1,8 +1,9 @@
 import { PrismaClient } from '@prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
+import { createPrismaWrapper } from './wrapper';
 
 export const createPrismaClient = () => {
-    const prisma = new PrismaClient({
+    const prismaBase = new PrismaClient({
         log: [
             {
                 emit: 'event',
@@ -22,8 +23,8 @@ export const createPrismaClient = () => {
             },
         ],
         errorFormat: 'pretty',
-    }).$extends(
-        withAccelerate(),
-    )
-    return prisma
+    }).$extends(withAccelerate());
+
+    // 使用包装器处理 BigInt 转换，而不是中间件
+    return createPrismaWrapper(prismaBase);
 };

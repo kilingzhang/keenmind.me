@@ -30,7 +30,7 @@ const createOptions = (): NextAuthConfig => {
             // @ts-ignore
             session: async ({ session, token, user }) => {
                 if (!session?.user?.id) return null
-                session.user = await UserService.getUserById(session.user.id)
+                session.user = await UserService.getUserById(Number(session.user.id))
                 return session
             },
             // @ts-ignore
@@ -100,7 +100,7 @@ const createOptions = (): NextAuthConfig => {
                             account.providerAccountId
                         );
 
-                        if (existingAccount && existingAccount.user.id !== session.user.id) {
+                        if (existingAccount && existingAccount.users.id !== BigInt(session.user.id || '0')) {
                             throw new Error('account already linked to another user');
                         }
 
@@ -117,7 +117,7 @@ const createOptions = (): NextAuthConfig => {
                             console.log('linking account profile', profile);
                             console.log('linking account shouldUpdateEmail', shouldUpdateEmail);
                             await AccountService.linkAccount({
-                                user_id: session.user.id,
+                                user_id: Number(session.user.id),
                                 type: account.type,
                                 provider: account.provider,
                                 provider_account_id: account.providerAccountId,
@@ -131,7 +131,7 @@ const createOptions = (): NextAuthConfig => {
                             });
 
                             if (shouldUpdateEmail) {
-                                await UserService.updateUser(session.user.id, { email: profile?.email });
+                                await UserService.updateUser(Number(session.user.id), { email: profile?.email });
                             }
                         }
 

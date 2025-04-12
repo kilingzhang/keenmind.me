@@ -11,7 +11,7 @@ export class VerificationTokenService {
      */
     static async createVerificationToken(data: CreateVerificationTokenData) {
         try {
-            return await prisma().authVerificationToken.create({
+            return await prisma().auth_verification_tokens.create({
                 data: {
                     ...data,
                     type: data.type || TokenType.EMAIL_VERIFICATION,
@@ -27,7 +27,7 @@ export class VerificationTokenService {
      */
     static async useVerificationToken(identifier: string, token: string) {
         try {
-            return await prisma().authVerificationToken.update({
+            return await prisma().auth_verification_tokens.update({
                 where: { identifier_token: { identifier, token } },
                 data: {
                     used: true,

@@ -12,12 +12,21 @@ export class SessionService {
      */
     static async getSessionAndUser(sessionToken: string) {
         try {
-            return await prisma().authSession.findUnique({
+            const session = await prisma().auth_sessions.findUnique({
                 where: { session_token: sessionToken },
                 include: {
-                    user: true
+                    users: true
                 },
             });
+
+            if (!session || !session.users) {
+                return null;
+            }
+
+            return {
+                ...session,
+                user: session.users
+            };
         } catch (error) {
             throw new DatabaseError('Failed to fetch session ' + (error as Error).message, 'FETCH_ERROR', error);
         }
@@ -28,7 +37,7 @@ export class SessionService {
      */
     static async createSession(data: CreateSessionData) {
         try {
-            return await prisma().authSession.create({
+            return await prisma().auth_sessions.create({
                 data
             });
         } catch (error) {
@@ -39,9 +48,9 @@ export class SessionService {
     /**
      * 更新会话
      */
-    static async updateSession(sessionToken: string, data: Prisma.AuthSessionUpdateInput) {
+    static async updateSession(sessionToken: string, data: Prisma.auth_sessionsUpdateInput) {
         try {
-            return await prisma().authSession.update({
+            return await prisma().auth_sessions.update({
                 where: { session_token: sessionToken },
                 data: stripUndefined(data),
             });
@@ -55,7 +64,7 @@ export class SessionService {
      */
     static async deleteSession(sessionToken: string) {
         try {
-            return await prisma().authSession.delete({
+            return await prisma().auth_sessions.delete({
                 where: { session_token: sessionToken },
             });
         } catch (error) {
