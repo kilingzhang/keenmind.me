@@ -5,49 +5,49 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 
 const pricingPlans = [
     {
-        name: "基础版",
-        price: "¥99",
-        description: "适合个人用户和小型团队",
+        name: "基础会员",
+        price: "免费",
+        description: "初步体验犀知的智能学习系统",
         features: [
-            "每月100次AI对话",
-            "基础文档管理",
-            "标准客户支持",
-            "1个用户账号",
-            "基础数据分析"
+            "基础AI问答功能",
+            "每日限次模拟面试（1次）",
+            "基础学习资源",
+            "社区互动",
+            "能力图谱基础版"
         ],
         popular: false,
         gradient: "from-indigo-50/80 via-purple-50/80 to-indigo-50/80"
     },
     {
-        name: "专业版",
-        price: "¥299",
-        description: "适合成长期企业和专业团队",
+        name: "高级会员",
+        price: "¥9.9",
+        description: "全面提升技术能力，进阶职业发展",
         features: [
-            "每月1000次AI对话",
-            "高级文档管理",
-            "优先客户支持",
-            "5个用户账号",
-            "高级数据分析",
-            "自定义模型训练",
-            "API访问"
+            "无限次AI问答",
+            "每日限次模拟面试（2次）",
+            "每周限次技术评估（1次）",
+            "高级学习资源",
+            "学习路径规划",
+            "进度追踪与分析",
+            "专项训练挑战"
         ],
         popular: true,
         gradient: "from-purple-50/80 via-pink-50/80 to-purple-50/80"
     },
     {
-        name: "企业版",
-        price: "¥999",
-        description: "适合大型企业和机构",
+        name: "企业会员",
+        price: "定制",
+        description: "为团队提供系统化能力提升方案",
         features: [
-            "无限AI对话",
-            "企业级文档管理",
-            "24/7专属支持",
-            "无限用户账号",
-            "企业级数据分析",
-            "专属模型定制",
-            "高级API集成",
-            "专属服务器部署",
-            "SLA保障"
+            "团队管理功能",
+            "定制化内容",
+            "批量评估报告",
+            "企业知识图谱",
+            "API接入",
+            "团队学习路径",
+            "定制Boss挑战",
+            "团队数据分析",
+            "专属客户支持"
         ],
         popular: false,
         gradient: "from-pink-50/80 via-indigo-50/80 to-pink-50/80"
@@ -61,10 +61,10 @@ export default function Pricing() {
                 <div className="text-center mb-20">
                     <span className="inline-block text-2xl mb-4">💎</span>
                     <h2 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 mb-6 tracking-tight animate-gradient">
-                        选择适合您的方案
+                        会员方案
                     </h2>
                     <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-                        灵活的定价方案，满足您的不同需求
+                        选择适合您的学习方案，开启技术成长之旅
                     </p>
                 </div>
 
@@ -80,7 +80,7 @@ export default function Pricing() {
                             {plan.popular && (
                                 <div className="absolute -top-5 left-1/2 transform -translate-x-1/2">
                                     <span className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-medium bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md">
-                                        最受欢迎
+                                        推荐方案
                                         <span className="ml-1">⭐️</span>
                                     </span>
                                 </div>
@@ -91,7 +91,7 @@ export default function Pricing() {
                                 <CardDescription className="text-slate-600">{plan.description}</CardDescription>
                                 <div className="mt-6 flex items-baseline gap-1">
                                     <span className="text-4xl font-bold text-slate-800">{plan.price}</span>
-                                    <span className="text-slate-600">/月</span>
+                                    {plan.price !== "免费" && plan.price !== "定制" && <span className="text-slate-600">/月</span>}
                                 </div>
                             </CardHeader>
 
@@ -115,7 +115,7 @@ export default function Pricing() {
                                     variant={plan.popular ? "default" : "secondary"}
                                     size="lg"
                                 >
-                                    即将开放
+                                    {plan.price === "免费" ? "立即开始" : "即将开放"}
                                 </Button>
                             </CardFooter>
                         </Card>
@@ -124,7 +124,7 @@ export default function Pricing() {
 
                 <div className="mt-16 text-center">
                     <p className="text-slate-600">
-                        所有方案均包含14天免费试用 · 随时取消
+                        高级会员支持7天无理由退款 · 按月支付随时可取消
                     </p>
                 </div>
             </div>

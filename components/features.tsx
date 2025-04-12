@@ -2,39 +2,39 @@
 
 const features = [
   {
-    icon: '🧠',
-    title: '智能记录',
-    description: '支持文本、语音、图像等多种格式，自动分类整理您的生活记忆。',
+    icon: '🔍',
+    title: '智能问答流',
+    description: '通过AI驱动的连续问答系统，帮助开发者主动思考、输出，培养结构化知识体系。',
     gradient: 'from-indigo-50/80 via-purple-50/80 to-indigo-50/80'
   },
   {
-    icon: '⏰',
-    title: '智能提醒',
-    description: '贴心的日程管理，重要事项不错过，让生活更有条理。',
+    icon: '📋',
+    title: '结构化反馈',
+    description: '多维度分析用户回答，提供清晰的结构分析、改进建议和标准答案。',
     gradient: 'from-purple-50/80 via-pink-50/80 to-purple-50/80'
   },
   {
-    icon: '📊',
-    title: '数据分析',
-    description: '深度分析您的习惯和生活方式，提供个性化建议。',
+    icon: '💬',
+    title: '主动追问机制',
+    description: '支持用户随时追问，形成探索性学习对话，深入理解知识点。',
     gradient: 'from-pink-50/80 via-rose-50/80 to-pink-50/80'
   },
   {
-    icon: '🔒',
-    title: '安全可靠',
-    description: '采用先进加密技术，保护您的隐私数据安全。',
+    icon: '📊',
+    title: '能力图谱跟踪',
+    description: '实时构建个人知识图谱，追踪能力成长，精准定位学习盲区。',
     gradient: 'from-rose-50/80 via-orange-50/80 to-rose-50/80'
   },
   {
-    icon: '🤖',
-    title: '智能助手',
-    description: '智能对话，帮您处理日常任务，提供贴心服务。',
+    icon: '🎮',
+    title: '专项训练挑战',
+    description: '针对薄弱点提供专项挑战，通过游戏化机制激发学习动力。',
     gradient: 'from-orange-50/80 via-amber-50/80 to-orange-50/80'
   },
   {
-    icon: '🔍',
-    title: '智能检索',
-    description: '强大的搜索功能，快速找到需要的信息。',
+    icon: '🎤',
+    title: '语音交互表达',
+    description: '支持语音回答问题，锻炼表达能力，更接近实际面试场景。',
     gradient: 'from-amber-50/80 via-yellow-50/80 to-amber-50/80'
   }
 ];
@@ -49,7 +49,7 @@ export default function Features() {
             核心功能
           </h2>
           <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
-            探索思侣为您带来的智能化体验
+            探索犀知如何重新定义开发者学习体验
           </p>
         </div>
 
