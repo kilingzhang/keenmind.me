@@ -3,7 +3,7 @@ import { getRequestEnvs } from "@/lib/define";
 import { BuiltInProviderType } from "next-auth/providers";
 import RedirectUI from './redirect-ui';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export default async function RedirectPage({
     searchParams,

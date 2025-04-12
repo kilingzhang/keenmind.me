@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { signIn } from '@/lib/auth/jwt';
 import { BuiltInProviderType } from 'next-auth/providers';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
     const provider = request.nextUrl.searchParams.get('provider') as BuiltInProviderType || 'github'

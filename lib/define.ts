@@ -1,6 +1,6 @@
 import { getRequestContext } from "@cloudflare/next-on-pages";
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 // @ts-ignore
 export const isEdge = runtime === 'edge';

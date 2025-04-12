@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 const isWechatBrowser = () => {
     if (typeof window === 'undefined') return false;

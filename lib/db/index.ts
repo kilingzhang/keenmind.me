@@ -1,4 +1,4 @@
-import { createPrismaClient } from './edge';
+import { createPrismaClient } from './node';
 
 let prismaInstance: ReturnType<typeof createPrismaClient> | null = null;
 

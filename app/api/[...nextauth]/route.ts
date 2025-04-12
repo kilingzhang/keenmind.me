@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import * as sessionAuth from '@/lib/auth/session';
 import * as jwtAuth from '@/lib/auth/jwt';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 async function getAuthHandlers(req: NextRequest) {
     // 从请求中获取 strategy 参数

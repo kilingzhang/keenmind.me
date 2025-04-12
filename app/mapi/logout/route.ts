@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { signOut } from '@/lib/auth/jwt';
 import { cookies } from 'next/headers';
 
-export const runtime = 'edge';
+export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
     await signOut({
