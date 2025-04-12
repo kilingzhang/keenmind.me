@@ -88,6 +88,68 @@ function ClientPage() {
       {/* Features Section */}
       <Features />
 
+      {/* How It Works Section */}
+      <section className="relative py-32 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="inline-block text-2xl mb-4">🔄</span>
+            <h2 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 mb-6 tracking-tight animate-gradient">
+              智能学习流程
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              体验无限问答闭环流，实现高效学习与能力提升
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="relative">
+              <div className="absolute top-1/2 left-full w-24 h-1 bg-gradient-to-r from-indigo-300 to-transparent -translate-y-1/2 hidden md:block"></div>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 h-full">
+                <div className="w-14 h-14 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6 text-2xl font-bold">1</div>
+                <h3 className="text-xl font-semibold mb-4 text-slate-800">智能提问</h3>
+                <p className="text-slate-600">系统结合图谱、历史和上下文，智能生成针对性技术问题，激发思考。</p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute top-1/2 left-full w-24 h-1 bg-gradient-to-r from-indigo-300 to-transparent -translate-y-1/2 hidden md:block"></div>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 h-full">
+                <div className="w-14 h-14 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-6 text-2xl font-bold">2</div>
+                <h3 className="text-xl font-semibold mb-4 text-slate-800">用户回答</h3>
+                <p className="text-slate-600">支持语音或文字输入，表达您的思考，锻炼解释复杂概念的能力。</p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute top-1/2 left-full w-24 h-1 bg-gradient-to-r from-indigo-300 to-transparent -translate-y-1/2 hidden md:block"></div>
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 h-full">
+                <div className="w-14 h-14 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center mb-6 text-2xl font-bold">3</div>
+                <h3 className="text-xl font-semibold mb-4 text-slate-800">多维反馈</h3>
+                <p className="text-slate-600">AI提供结构化分析、改进建议、标准答案和相关知识点链接。</p>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 h-full">
+                <div className="w-14 h-14 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center mb-6 text-2xl font-bold">4</div>
+                <h3 className="text-xl font-semibold mb-4 text-slate-800">持续深入</h3>
+                <p className="text-slate-600">选择继续探索或追问深入，系统根据您的反应智能调整学习路径。</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <Button
+              variant="default"
+              size="lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-indigo-200/50 transform hover:-translate-y-0.5 transition-all duration-300"
+            >
+              开始您的学习旅程
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* Why Choose 犀知 Section */}
       <section className="relative py-32 px-6 bg-gradient-to-b from-white to-indigo-50/30">
         <div className="max-w-6xl mx-auto">
@@ -198,6 +260,219 @@ function ClientPage() {
 
       {/* Pricing Section */}
       <Pricing />
+
+      {/* Testimonials Section */}
+      <section className="relative py-32 px-6 bg-gradient-to-b from-white to-indigo-50/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="inline-block text-2xl mb-4">💬</span>
+            <h2 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 mb-6 tracking-tight animate-gradient">
+              用户心声
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              听听开发者们如何通过犀知提升技术能力
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-indigo-100 flex items-center justify-center text-xl">
+                  👨‍💻
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-800">张明</h4>
+                  <p className="text-slate-500 text-sm">后端开发工程师 · 2年经验</p>
+                </div>
+              </div>
+              <p className="text-slate-600 italic mb-6">
+                "犀知帮我发现了Go并发编程中的盲点，通过持续问答和反馈，我的代码质量显著提升。最近的技术面试中，我能够流畅地讲解复杂概念，这在以前是难以想象的。"
+              </p>
+              <div className="flex gap-1">
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+              </div>
+            </div>
+
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center text-xl">
+                  👩‍💻
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-800">李雪</h4>
+                  <p className="text-slate-500 text-sm">计算机科学专业 · 应届毕业生</p>
+                </div>
+              </div>
+              <p className="text-slate-600 italic mb-6">
+                "作为即将毕业的学生，我一直担心理论知识无法应用到实践中。犀知的问答系统和结构化反馈让我快速掌握了现实开发中的关键知识，顺利通过了几家知名公司的技术面试。"
+              </p>
+              <div className="flex gap-1">
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+              </div>
+            </div>
+
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-12 h-12 rounded-full bg-pink-100 flex items-center justify-center text-xl">
+                  👨‍💻
+                </div>
+                <div>
+                  <h4 className="font-semibold text-slate-800">王强</h4>
+                  <p className="text-slate-500 text-sm">全栈开发者 · 技术团队负责人</p>
+                </div>
+              </div>
+              <p className="text-slate-600 italic mb-6">
+                "我们团队将犀知作为技术培训的辅助工具。它不仅帮助新人快速上手，也让资深开发者能够系统化地巩固和拓展知识边界。高效、有趣且富有成效。"
+              </p>
+              <div className="flex gap-1">
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+                <span className="text-amber-500">★</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats Section */}
+      <section className="relative py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 text-center">
+              <h3 className="text-4xl font-bold text-indigo-600 mb-2">10,000+</h3>
+              <p className="text-slate-600">技术问题库</p>
+            </div>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 text-center">
+              <h3 className="text-4xl font-bold text-purple-600 mb-2">85%</h3>
+              <p className="text-slate-600">用户能力提升率</p>
+            </div>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 text-center">
+              <h3 className="text-4xl font-bold text-pink-600 mb-2">30+</h3>
+              <p className="text-slate-600">技术领域覆盖</p>
+            </div>
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 text-center">
+              <h3 className="text-4xl font-bold text-indigo-600 mb-2">93%</h3>
+              <p className="text-slate-600">用户满意度</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="relative py-32 px-6 bg-gradient-to-b from-white to-indigo-50/30">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-20">
+            <span className="inline-block text-2xl mb-4">❓</span>
+            <h2 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 mb-6 tracking-tight animate-gradient">
+              常见问题
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              解答您关于犀知的疑惑
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-4 text-slate-800">犀知与传统学习平台有何不同？</h3>
+              <p className="text-slate-600">
+                犀知不是被动观看视频或阅读文档，而是通过AI驱动的交互式问答，引导您主动思考和表达。智能反馈系统会分析您的回答，提供多维度建议，让学习更高效、有趣且针对性强。
+              </p>
+            </div>
+
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-4 text-slate-800">犀知适合什么水平的开发者？</h3>
+              <p className="text-slate-600">
+                犀知适合各个阶段的开发者，特别是有1-3年经验的工程师和计算机专业学生。系统会根据您的水平和学习历史智能调整问题难度，确保学习体验既有挑战性又不令人沮丧。
+              </p>
+            </div>
+
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-4 text-slate-800">使用犀知需要特殊设备吗？</h3>
+              <p className="text-slate-600">
+                不需要。犀知可在任何现代浏览器中使用，支持PC、平板和手机。建议使用带麦克风的设备以便语音输入，但这不是必须的，文本输入同样有效。
+              </p>
+            </div>
+
+            <div className="bg-white/70 backdrop-blur-sm rounded-2xl p-8 border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300">
+              <h3 className="text-xl font-semibold mb-4 text-slate-800">犀知支持哪些编程语言和技术栈？</h3>
+              <p className="text-slate-600">
+                犀知当前重点支持主流后端语言（Go、Java、Python等）和前端技术（React、Vue等），以及数据库、系统设计、算法等核心领域。我们持续扩展技术覆盖面，确保与行业需求同步。
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-16 text-center">
+            <Button
+              variant="default"
+              size="lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-indigo-200/50 transform hover:-translate-y-0.5 transition-all duration-300"
+            >
+              立即开始使用
+            </Button>
+          </div>
+        </div>
+      </section>
+
+      {/* Tech Stack Section */}
+      <section className="relative py-24 px-6">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <span className="inline-block text-2xl mb-4">🛠️</span>
+            <h2 className="text-4xl lg:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 mb-6 tracking-tight animate-gradient">
+              技术覆盖领域
+            </h2>
+            <p className="text-xl text-slate-600 max-w-2xl mx-auto leading-relaxed">
+              犀知助您掌握各种主流技术栈
+            </p>
+          </div>
+
+          <div className="flex flex-wrap justify-center gap-4">
+            {["Go", "Java", "Python", "JavaScript", "TypeScript", "React", "Vue", "Node.js", "微服务", "Docker", "Kubernetes", "MySQL", "PostgreSQL", "MongoDB", "Redis", "算法", "系统设计", "并发编程", "网络协议", "安全", "Git", "CI/CD", "云原生", "设计模式"].map((tech, index) => (
+              <span key={index} className="px-4 py-2 bg-white/70 backdrop-blur-sm rounded-full border border-slate-100 shadow-sm hover:shadow-md transition-all duration-300 text-slate-700 hover:text-indigo-600 hover:border-indigo-200 cursor-pointer">
+                {tech}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA Section */}
+      <section className="relative py-24 px-6 bg-gradient-to-r from-indigo-100/50 to-purple-100/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-4xl lg:text-5xl font-bold text-slate-800 mb-6">
+            准备好提升您的技术能力了吗？
+          </h2>
+          <p className="text-xl text-slate-600 mb-10 max-w-2xl mx-auto">
+            加入犀知，开启智能学习之旅，构建结构化知识体系，实现职业快速成长。
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button
+              variant="default"
+              size="lg"
+              className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-indigo-200/50 transform hover:-translate-y-0.5 transition-all duration-300"
+            >
+              免费开始使用
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              className="border-slate-200 bg-white/50 backdrop-blur-sm text-slate-700 hover:bg-slate-50 transform hover:-translate-y-0.5 transition-all duration-300"
+            >
+              预约演示
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
       <footer className="relative py-20 border-t border-slate-100 px-6">
