@@ -11,6 +11,10 @@ pages_build_output_dir = ".vercel/output/static"
 [placement]
 mode = "smart"
 
+#[[hyperdrive]]
+#binding = "KEENMIND_HYPERDRIVE"
+#id = "d418b28518f04b318cf43ea41a886504"
+#localConnectionString="postgres://postgres.mdrkxqmfboidnxuqmuko:kWpxhe2RZuk3cn^@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
 
 [vars]
 NODE_ENV="production"

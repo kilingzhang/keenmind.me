@@ -18,10 +18,25 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
   experimental: {
+    serverActions: {
+      allowedForwardedHosts: ['keenmind.me'],
+      allowedOrigins: ['https://keenmind.me']
+    },
     optimizeCss: true,
-    optimizePackageImports: ['next-auth']
+    optimizePackageImports: [
+      'next-auth',
+      'lodash',
+      'sonner',
+      '@radix-ui/react-alert-dialog',
+      'class-variance-authority'
+    ],
+    scrollRestoration: true,
+    workerThreads: true
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    minimumCacheTTL: 60,
     remotePatterns: [
       {
         protocol: 'https',
