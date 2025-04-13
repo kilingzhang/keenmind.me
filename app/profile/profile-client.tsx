@@ -5,9 +5,10 @@ import { LoadingButton } from '@/components/ui/loading-button';
 import { auth_accounts } from "@/prisma/client";
 import { useCallback, useMemo, useTransition } from 'react';
 import { toast } from 'sonner';
-import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount } from '@/lib/auth/actions';
+import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount, signInWithEmail } from '@/lib/auth/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { Button } from "@/components/ui/button";
 
 const PROVIDER_MAP = {
     github: {
@@ -41,7 +42,9 @@ export function ConnectedAccountButton({ provider, account }: ConnectedAccountBu
     const handleUnlink = async (formData: FormData) => {
         startTransition(async () => {
             try {
-                await unlinkAccount(formData);
+                const provider = formData.get('provider') as string;
+                const providerAccountId = formData.get('providerAccountId') as string;
+                await unlinkAccount(provider, providerAccountId);
                 toast.success(`${providerName} account unlinked successfully`);
                 router.refresh();
             } catch (error: any) {
@@ -231,6 +234,25 @@ export default function ProfileClient({ user }: ProfileClientProps) {
                                             <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                                                 Verified
                                             </span>
+                                        )}
+                                        {!user?.email_verified && user?.email && (
+                                            <LoadingButton
+                                                onClick={() => {
+                                                    startTransition(async () => {
+                                                        try {
+                                                            await signInWithEmail(user.email);
+                                                            toast.success('Verification email sent');
+                                                        } catch (err) {
+                                                            console.error('Failed to send verification email', err);
+                                                            toast.error('Failed to send verification email');
+                                                        }
+                                                    });
+                                                }}
+                                                loading={isPending}
+                                                className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 hover:bg-yellow-200"
+                                            >
+                                                Verify Email
+                                            </LoadingButton>
                                         )}
                                     </div>
                                 </dd>

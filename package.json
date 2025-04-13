@@ -46,6 +46,7 @@
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@types/lodash": "^4.17.16",
     "@types/pg": "^8.11.12",
+    "@types/uuid": "^10.0.0",
     "class-variance-authority": "^0.7.1",
     "critters": "^0.0.25",
     "install": "^0.13.0",
@@ -57,7 +58,8 @@
     "react": "^18",
     "react-dom": "^18",
     "sonner": "^1.7.0",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "1",

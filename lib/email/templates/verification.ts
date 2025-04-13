@@ -6,7 +6,7 @@ export interface VerificationTemplateParams {
 export const getVerificationHtml = ({ url, host }: VerificationTemplateParams) => `
     <div style="background-color: #f6f9fc; padding: 40px 0;">
         <div style="max-width: 560px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-            <img src="https://authjs.dev/img/logo.png" width="40" height="40" style="margin-bottom: 20px"/>
+            <img src="https://keenmind.me/logo.png" width="40" height="40" style="margin-bottom: 20px"/>
             <h1 style="color: #1a1a1a; font-size: 24px; margin: 0 0 20px;">Login Verification</h1>
             <p style="color: #666; font-size: 16px; margin: 0 0 30px; line-height: 24px;">
                 Please click the button below to complete login verification. If you did not request this verification, please ignore this email.

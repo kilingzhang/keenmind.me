@@ -1,7 +1,6 @@
 'use server';
 
 import { AccountService, UserService } from "@/lib/db/services";
-import { revalidatePath } from "next/cache";
 import { getCurrentUser, signIn, signOut } from "../session";
 import { AuthError, AuthProvider, AuthResponse, SignInOptions } from '../types';
 
@@ -37,16 +36,15 @@ export async function signInWithProvider(provider: AuthProvider, options?: SignI
     }
 }
 
-export async function signInWithWechat(_: FormData, options?: SignInOptions) {
+export async function signInWithWechat(options?: SignInOptions) {
     return signInWithProvider('wechat', options);
 }
 
-export async function signInWithGithub(_: FormData, options?: SignInOptions) {
+export async function signInWithGithub(options?: SignInOptions) {
     return signInWithProvider('github', options);
 }
 
-export async function signInWithEmail(formData: FormData, options?: SignInOptions) {
-    const email = formData.get('email') as string;
+export async function signInWithEmail(email: string, options?: SignInOptions) {
     if (!email) {
         throw new AuthError('Email is required', 'VALIDATION_ERROR');
     }
@@ -108,11 +106,8 @@ export async function deleteAccount(): Promise<AuthResponse> {
     }
 }
 
-export async function unlinkAccount(formData: FormData): Promise<AuthResponse> {
+export async function unlinkAccount(provider: string, providerAccountId: string): Promise<AuthResponse> {
     try {
-        const provider = formData.get('provider') as string;
-        const providerAccountId = formData.get('providerAccountId') as string;
-
         if (!provider || !providerAccountId) {
             throw new AuthError('Missing required fields', 'VALIDATION_ERROR');
         }

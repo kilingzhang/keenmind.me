@@ -57,8 +57,8 @@ export default function LoginPage() {
                     {isWechat && (
                         <form>
                             <SubmitButton
-                                formAction={(formData: FormData) => {
-                                    return signInWithWechat(formData, {
+                                formAction={(_: FormData) => {
+                                    return signInWithWechat({
                                         redirectTo: redirectTo,
                                         redirect: true,
                                     });
@@ -72,8 +72,8 @@ export default function LoginPage() {
 
                     <form>
                         <SubmitButton
-                            formAction={(formData: FormData) => {
-                                return signInWithGithub(formData, {
+                            formAction={(_: FormData) => {
+                                return signInWithGithub({
                                     redirectTo: redirectTo,
                                     redirect: true,
                                 });
@@ -107,7 +107,8 @@ export default function LoginPage() {
                     </div>
                     <SubmitButton
                         formAction={(formData: FormData) => {
-                            return signInWithEmail(formData, {
+                            const email = formData.get('email') as string;
+                            return signInWithEmail(email, {
                                 redirectTo: redirectTo,
                                 redirect: true,
                             });
