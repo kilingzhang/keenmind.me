@@ -1,6 +1,7 @@
 import { PrismaClient } from '@/prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { createPrismaWrapper } from './wrapper';
+import { getRequestEnvs } from '../define';
 
 export const createPrismaClient = () => {
     const prismaBase = new PrismaClient({
