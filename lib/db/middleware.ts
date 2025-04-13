@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/prisma/client';
 import { prisma } from './index';
 import { getClientIp } from '../ip';
 

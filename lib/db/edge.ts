@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client/edge';
+import { PrismaClient } from '@/prisma/client/edge';
 import { withAccelerate } from '@prisma/extension-accelerate';
 import { createPrismaWrapper } from './wrapper';
 

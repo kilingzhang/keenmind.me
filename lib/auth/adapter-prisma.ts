@@ -134,8 +134,10 @@ export function PrismaAdapter(): Adapter {
                 created_ip: ipAddress !== 'unknown' ? ipAddress : undefined,
             })
         },
+        /* eslint-disable react-hooks/rules-of-hooks */
         useVerificationToken: async ({ identifier, token }) => {
             return await VerificationTokenService.useVerificationToken(identifier, token)
         }
+        /* eslint-enable react-hooks/rules-of-hooks */
     }
 }

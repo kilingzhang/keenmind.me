@@ -5,7 +5,7 @@
   "scripts": {
     "env": "dotenv -e .dev.vars",
     "dev": "bunx prisma generate &&bun run generate:node && bun run env -- next dev",
-    "build": "rm -rf .next && rm -rf .wrangler && rm -rf .vercel && bunx prisma generate --no-engine && ANALYZE=true dotenv -e .pro.vars -- next build",
+    "build": "rm -rf .next && rm -rf .wrangler && rm -rf .vercel && bunx prisma generate --no-engine && dotenv -e .pro.vars -- next build",
     "start": "bun run generate:node && bun run env -- next start",
     "lint": "next lint",
     "pages:build": "bun run generate:edge && bunx @cloudflare/next-on-pages",
@@ -19,7 +19,8 @@
     "prisma:push": "bun run env -- prisma db push",
     "prisma:studio": "bun run env -- prisma studio",
     "prisma:generate": "bunx prisma generate --no-engine",
-    "tail": "wrangler pages deployment tail --project-name keenmind.me"
+    "tail": "wrangler pages deployment tail --project-name keenmind.me",
+    "analyze": "ANALYZE=true next build"
   },
   "dependencies": {
     "@next/bundle-analyzer": "^15.2.4",
@@ -37,7 +38,6 @@
     "next": "14.2.5",
     "next-auth": "5.0.0-beta.20",
     "pg": "^8.14.1",
-    "prisma": "^6.5.0",
     "react": "^18",
     "react-dom": "^18",
     "sonner": "^1.7.0",
@@ -50,7 +50,10 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "clsx": "^2.1.1",
+    "eslint": "^8",
+    "eslint-config-next": "15.3.0",
     "postcss": "^8",
+    "prisma": "^6.5.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.7.2",

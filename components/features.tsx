@@ -1,5 +1,3 @@
-'use client';
-
 const features = [
   {
     icon: '🔍',
@@ -41,7 +39,7 @@ const features = [
 
 export default function Features() {
   return (
-    <section className="relative py-32 px-6">
+    <section id="features" className="relative py-32 px-6">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-20 relative">
           <span className="inline-block text-2xl mb-4">✨</span>

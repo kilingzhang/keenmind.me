@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma } from "@/prisma/client";
 import { prisma } from '../index';
 import { CreateSessionData, DatabaseError } from './types';
 import { stripUndefined } from './utils';

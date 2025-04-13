@@ -1,7 +1,6 @@
-'use client';
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 
 const pricingPlans = [
     {
@@ -16,7 +15,9 @@ const pricingPlans = [
             "能力图谱基础版"
         ],
         popular: false,
-        gradient: "from-indigo-50/80 via-purple-50/80 to-indigo-50/80"
+        gradient: "from-indigo-50/80 via-purple-50/80 to-indigo-50/80",
+        action: "立即开始",
+        link: "/signup"
     },
     {
         name: "高级会员",
@@ -32,7 +33,9 @@ const pricingPlans = [
             "专项训练挑战"
         ],
         popular: true,
-        gradient: "from-purple-50/80 via-pink-50/80 to-purple-50/80"
+        gradient: "from-purple-50/80 via-pink-50/80 to-purple-50/80",
+        action: "即将开放",
+        link: "/waitlist"
     },
     {
         name: "企业会员",
@@ -50,13 +53,15 @@ const pricingPlans = [
             "专属客户支持"
         ],
         popular: false,
-        gradient: "from-pink-50/80 via-indigo-50/80 to-pink-50/80"
+        gradient: "from-pink-50/80 via-indigo-50/80 to-pink-50/80",
+        action: "联系我们",
+        link: "/contact"
     }
 ];
 
 export default function Pricing() {
     return (
-        <section className="relative py-32 px-6">
+        <section id="pricing" className="relative py-32 px-6">
             <div className="max-w-6xl mx-auto">
                 <div className="text-center mb-20">
                     <span className="inline-block text-2xl mb-4">💎</span>
@@ -107,16 +112,18 @@ export default function Pricing() {
                             </CardContent>
 
                             <CardFooter className="pt-6">
-                                <Button
-                                    className={`w-full ${plan.popular
-                                        ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg"
-                                        : "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200"
-                                        } transform hover:-translate-y-0.5 transition-all duration-300`}
-                                    variant={plan.popular ? "default" : "secondary"}
-                                    size="lg"
-                                >
-                                    {plan.price === "免费" ? "立即开始" : "即将开放"}
-                                </Button>
+                                <Link href={plan.link} className="w-full">
+                                    <Button
+                                        className={`w-full ${plan.popular
+                                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-md hover:shadow-lg"
+                                            : "bg-white hover:bg-slate-50 text-slate-800 border border-slate-200"
+                                            } transform hover:-translate-y-0.5 transition-all duration-300`}
+                                        variant={plan.popular ? "default" : "secondary"}
+                                        size="lg"
+                                    >
+                                        {plan.action}
+                                    </Button>
+                                </Link>
                             </CardFooter>
                         </Card>
                     ))}

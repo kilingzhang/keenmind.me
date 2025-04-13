@@ -1,4 +1,4 @@
-import { UserStatus, TokenType } from "@prisma/client"
+import { UserStatus, TokenType } from "@/prisma/client"
 
 // 用户相关接口
 export interface CreateUserData {

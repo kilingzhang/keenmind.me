@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/prisma/client';
 
 // 将 BigInt 转换为 String 的工具函数
 const convertBigIntToString = (obj: any): any => {

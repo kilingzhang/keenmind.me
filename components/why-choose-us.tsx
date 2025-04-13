@@ -1,4 +1,4 @@
-"use client"
+import { Link } from "@/components/ui/link"
 
 const WhyChooseUs = () => {
     return (
@@ -99,8 +99,12 @@ const WhyChooseUs = () => {
                                 </div>
 
                                 <div className="flex justify-center space-x-4">
-                                    <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">继续探索</button>
-                                    <button className="px-4 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-sm">我有疑问</button>
+                                    <Link href="/explore" className="inline-block">
+                                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm">继续探索</button>
+                                    </Link>
+                                    <Link href="/ask" className="inline-block">
+                                        <button className="px-4 py-2 bg-white border border-indigo-200 text-indigo-600 rounded-lg text-sm">我有疑问</button>
+                                    </Link>
                                 </div>
                             </div>
                         </div>

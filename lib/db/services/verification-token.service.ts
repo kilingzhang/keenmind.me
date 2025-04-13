@@ -1,4 +1,4 @@
-import { Prisma, TokenType } from "@prisma/client";
+import { Prisma, TokenType } from "@/prisma/client";
 import { prisma } from '../index';
 import { CreateVerificationTokenData, DatabaseError } from './types';
 

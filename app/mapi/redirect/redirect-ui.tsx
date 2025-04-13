@@ -1,29 +1,11 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function RedirectUI({ scheme }: { scheme: string }) {
     const [redirectFailed, setRedirectFailed] = useState(false);
 
-    useEffect(() => {
-        handleRedirect();
-
-        // 监听页面可见性变化
-        const handleVisibilityChange = () => {
-            if (document.hidden) {
-                // 页面被切换到后台,说明app已打开
-                setRedirectFailed(false);
-            }
-        };
-
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-        };
-    }, []);
-
-    const handleRedirect = () => {
+    const handleRedirect = useCallback(() => {
         try {
             console.log('Attempting to open app:', scheme);
 
@@ -47,7 +29,25 @@ export default function RedirectUI({ scheme }: { scheme: string }) {
             console.error('Failed to open app:', error);
             setRedirectFailed(true);
         }
-    };
+    }, [scheme, setRedirectFailed]);
+
+    useEffect(() => {
+        handleRedirect();
+
+        // 监听页面可见性变化
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                // 页面被切换到后台,说明app已打开
+                setRedirectFailed(false);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
+    }, [handleRedirect]);
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
@@ -70,7 +70,7 @@ export default function RedirectUI({ scheme }: { scheme: string }) {
 
                         <p className="text-gray-400 text-sm">
                             You have successfully connected to keenmind.me Account. Now
-                            it's time to open keenmind.me to use the new commands of the
+                            it&apos;s time to open keenmind.me to use the new commands of the
                             extension.
                         </p>
                     </div>
@@ -98,7 +98,7 @@ export default function RedirectUI({ scheme }: { scheme: string }) {
                                     </svg>
                                 </div>
                                 <div className="flex-1">
-                                    <p className="text-yellow-400 font-medium">It seems keenmind.me app didn't open correctly</p>
+                                    <p className="text-yellow-400 font-medium">It seems keenmind.me app didn&apos;t open correctly</p>
                                     <p className="mt-2 text-sm text-yellow-400/80">Possible reasons:</p>
                                     <ul className="mt-1 text-sm text-yellow-400/80 list-disc list-inside space-y-1">
                                         <li>keenmind.me app is not installed</li>

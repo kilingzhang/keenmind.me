@@ -1,4 +1,4 @@
-import { Prisma, UserStatus } from "@prisma/client";
+import { Prisma, UserStatus } from "@/prisma/client";
 import { prisma } from '../index';
 import { CreateUserData, DatabaseError, UserNotFoundError, ValidationError, ACTIVE_USER_FILTER } from './types';
 import { stripUndefined } from './utils';

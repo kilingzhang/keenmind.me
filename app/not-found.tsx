@@ -14,14 +14,14 @@ function NotFoundContent() {
         <div className="space-y-4">
           <h1 className="text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient">404</h1>
           <h2 className="text-2xl font-semibold text-slate-700">页面未找到</h2>
-          <Image
+          {/* <Image
             src="/images/404/confused-travolta.gif"
             width={400}
             height={300}
             alt="404 Not Found"
             className="mx-auto mb-8"
             priority
-          />
+          /> */}
           <p className="text-slate-500">抱歉，您访问的页面不存在或已被移除。</p>
         </div>
 

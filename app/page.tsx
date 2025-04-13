@@ -4,8 +4,19 @@ import { Button } from "@/components/ui/button"
 import dynamic from 'next/dynamic'
 import { OptimizedImage } from '@/components/ui/optimized-image'
 import { Link } from "@/components/ui/link"
+import { Suspense } from "react";
 
-// 懒加载组件
+// 设置页面元数据
+export const metadata = {
+  alternates: {
+    canonical: 'https://keenmind.me'
+  }
+};
+
+// 静态预取链接路径（仅在组件内部使用）
+const PRELOADED_PATHS = ['/login', '/signup', '/explore', '/ask'];
+
+// 懒加载组件，但使用优先级调整加载顺序
 const Features = dynamic(() => import('@/components/features'), {
   loading: () => <div className="animate-pulse bg-slate-100 h-96 rounded-lg"></div>,
   ssr: true
@@ -29,6 +40,15 @@ const WhyChooseUs = dynamic(() => import('../components/why-choose-us'), {
 export default function Page() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 text-slate-900 overflow-hidden">
+      {/* 预加载 React 资源 */}
+      <link
+        rel="preload"
+        href="/logo.png"
+        as="image"
+        type="image/png"
+        fetchPriority="high"
+      />
+
       {/* 背景动效 */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-100/40 via-transparent to-transparent animate-pulse" />
@@ -36,7 +56,7 @@ export default function Page() {
         <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,_var(--tw-gradient-stops))] from-slate-100/50 via-white/25 to-slate-100/50 animate-spin-slow" />
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section - LCP 关键部分 */}
       <section className="relative min-h-[90vh] flex items-center justify-center px-6 pt-20 md:pt-0">
         <div className="max-w-6xl mx-auto z-10 w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-16">
@@ -95,17 +115,20 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <Features />
+      {/* 其他非关键部分用Suspense包裹，优先渲染上面的关键内容 */}
+      <Suspense fallback={<div className="h-20"></div>}>
+        {/* Features Section */}
+        <Features />
 
-      {/* How It Works Section */}
-      <HowItWorks />
+        {/* How It Works Section */}
+        <HowItWorks />
 
-      {/* Why Choose 犀知 Section */}
-      <WhyChooseUs />
+        {/* Why Choose 犀知 Section */}
+        <WhyChooseUs />
 
-      {/* Pricing Section */}
-      <Pricing />
+        {/* Pricing Section */}
+        <Pricing />
+      </Suspense>
 
       {/* Testimonials Section */}
       <section className="relative py-32 px-6 bg-gradient-to-b from-white to-indigo-50/30">
@@ -132,7 +155,7 @@ export default function Page() {
                 </div>
               </div>
               <p className="text-slate-600 italic mb-6">
-                "犀知帮我发现了Go并发编程中的盲点，通过持续问答和反馈，我的代码质量显著提升。最近的技术面试中，我能够流畅地讲解复杂概念，这在以前是难以想象的。"
+                &quot;犀知帮我发现了Go并发编程中的盲点，通过持续问答和反馈，我的代码质量显著提升。最近的技术面试中，我能够流畅地讲解复杂概念，这在以前是难以想象的。&quot;
               </p>
               <div className="flex gap-1">
                 <span className="text-amber-500">★</span>
@@ -154,7 +177,7 @@ export default function Page() {
                 </div>
               </div>
               <p className="text-slate-600 italic mb-6">
-                "作为即将毕业的学生，我一直担心理论知识无法应用到实践中。犀知的问答系统和结构化反馈让我快速掌握了现实开发中的关键知识，顺利通过了几家知名公司的技术面试。"
+                &quot;作为即将毕业的学生，我一直担心理论知识无法应用到实践中。犀知的问答系统和结构化反馈让我快速掌握了现实开发中的关键知识，顺利通过了几家知名公司的技术面试。&quot;
               </p>
               <div className="flex gap-1">
                 <span className="text-amber-500">★</span>
@@ -176,7 +199,7 @@ export default function Page() {
                 </div>
               </div>
               <p className="text-slate-600 italic mb-6">
-                "我们团队将犀知作为技术培训的辅助工具。它不仅帮助新人快速上手，也让资深开发者能够系统化地巩固和拓展知识边界。高效、有趣且富有成效。"
+                &quot;我们团队将犀知作为技术培训的辅助工具。它不仅帮助新人快速上手，也让资深开发者能够系统化地巩固和拓展知识边界。高效、有趣且富有成效。&quot;
               </p>
               <div className="flex gap-1">
                 <span className="text-amber-500">★</span>

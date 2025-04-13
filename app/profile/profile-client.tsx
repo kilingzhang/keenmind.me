@@ -2,11 +2,12 @@
 
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { LoadingButton } from '@/components/ui/loading-button';
-import { auth_accounts } from "@prisma/client";
+import { auth_accounts } from "@/prisma/client";
 import { useCallback, useMemo, useTransition } from 'react';
 import { toast } from 'sonner';
 import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount } from '@/lib/auth/actions';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 const PROVIDER_MAP = {
     github: {
@@ -121,7 +122,13 @@ export function ConnectedAccount({ provider, user }: ConnectedAccountProps) {
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                     <div className="flex-shrink-0">
-                        <img src={iconSrc} alt={providerName} className="h-8 w-8" />
+                        <Image
+                            src={iconSrc}
+                            alt={providerName}
+                            width={32}
+                            height={32}
+                            className="h-8 w-8"
+                        />
                     </div>
                     <div>
                         <h4 className="text-sm font-medium text-gray-900">{providerName}</h4>

@@ -91,8 +91,9 @@ const createOptions = (): NextAuthConfig => {
                 try {
 
                     const session = await auth();
-
-                    if (account && session?.user) {
+                    console.log('signIn session', session);
+                    console.log('signIn account', account);
+                    if (account && session?.user?.id) {
 
                         // 检查账号是否已被其他用户绑定
                         const existingAccount = await AccountService.getUserByAccount(
@@ -100,7 +101,7 @@ const createOptions = (): NextAuthConfig => {
                             account.providerAccountId
                         );
 
-                        if (existingAccount && existingAccount.users.id !== BigInt(session.user.id || '0')) {
+                        if (existingAccount && existingAccount.users.id !== BigInt(session?.user?.id)) {
                             throw new Error('account already linked to another user');
                         }
 

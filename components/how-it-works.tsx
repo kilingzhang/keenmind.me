@@ -1,6 +1,5 @@
-"use client"
-
 import { Button } from "@/components/ui/button"
+import { Link } from "@/components/ui/link"
 
 const HowItWorks = () => {
     return (
@@ -54,13 +53,15 @@ const HowItWorks = () => {
                 </div>
 
                 <div className="mt-16 text-center">
-                    <Button
-                        variant="default"
-                        size="lg"
-                        className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-indigo-200/50 transform hover:-translate-y-0.5 transition-all duration-300"
-                    >
-                        开始您的学习旅程
-                    </Button>
+                    <Link href="/start-journey" prefetch={true}>
+                        <Button
+                            variant="default"
+                            size="lg"
+                            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg hover:shadow-indigo-200/50 transform hover:-translate-y-0.5 transition-all duration-300"
+                        >
+                            开始您的学习旅程
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </section>

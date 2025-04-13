@@ -1,5 +1,5 @@
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@/prisma/client';
 import { Pool } from 'pg';
 import { createPrismaWrapper } from './wrapper';
 
@@ -12,6 +12,7 @@ const pool = new Pool({
     maxUses: 7500, // 每个连接最大使用次数
 });
 
+// @ts-ignore
 const adapter = new PrismaPg(pool);
 
 // 错误处理函数

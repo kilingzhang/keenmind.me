@@ -51,12 +51,11 @@ function ErrorHandlerContent() {
     }, []);
 
     // 使用防抖优化URL更新
-    const updateUrl = useCallback(
-        debounce((newPathname: string) => {
-            router.replace(newPathname);
-        }, 300),
-        [router]
-    );
+    const updateUrl = useCallback((newPathname: string) => {
+        debounce((path: string) => {
+            router.replace(path);
+        }, 300)(newPathname);
+    }, [router]);
 
     useEffect(() => {
         const error = searchParams.get('error');
