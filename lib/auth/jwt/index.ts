@@ -33,6 +33,10 @@ const createOptions = (): NextAuthConfig => {
     const env = getRequestEnvs();
     return {
         ...baseOptions('jwt'),
+        pages: {
+            signIn: "/login",
+            verifyRequest: "/auth/verify-request",
+        },
         session: {
             strategy: 'jwt',
             maxAge: 60 * 60 * 24 * 14,

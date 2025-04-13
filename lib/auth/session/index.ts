@@ -10,6 +10,7 @@ const createOptions = (): NextAuthConfig => {
         ...baseOptions(),
         pages: {
             signIn: "/login",
+            verifyRequest: "/auth/verify-request",
         },
         session: {
             strategy: 'database',
@@ -91,8 +92,6 @@ const createOptions = (): NextAuthConfig => {
                 try {
 
                     const session = await auth();
-                    console.log('signIn session', JSON.stringify(session));
-                    console.log('signIn account', JSON.stringify(account));
                     if (account && session?.user?.id) {
 
                         // 检查账号是否已被其他用户绑定
@@ -100,7 +99,6 @@ const createOptions = (): NextAuthConfig => {
                             account.provider,
                             account.providerAccountId
                         );
-                        console.log('signIn existingAccount', existingAccount);
                         // @ts-ignore
                         if (existingAccount && existingAccount.users.id != session?.user?.id) {
                             throw new Error('account already linked to another user');
