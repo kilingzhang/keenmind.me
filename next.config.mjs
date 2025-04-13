@@ -1,5 +1,6 @@
 import { setupDevPlatform } from '@cloudflare/next-on-pages/next-dev';
 import withBundleAnalyzer from '@next/bundle-analyzer';
+import withPWA from 'next-pwa';
 
 // Here we use the @cloudflare/next-on-pages next-dev module to allow us to use bindings during local development
 // (when running the application with `next dev`), for more information see:
@@ -74,7 +75,16 @@ const nextConfig = {
         ],
       },
       {
-        source: '/_next/static/:path*',
+        source: '/:path*.png',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      {
+        source: '/:path*.svg',
         headers: [
           {
             key: 'Cache-Control',
@@ -86,6 +96,10 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzer({
+export default withPWA({
+  dest: 'public/pwa',
+  disable: false,
+  // disable: process.env.NODE_ENV === 'development',
+})(withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
-})(nextConfig);
+})(nextConfig));
