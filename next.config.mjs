@@ -98,8 +98,7 @@ const nextConfig = {
 
 export default withPWA({
   dest: 'public/pwa',
-  disable: false,
-  // disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development',
 })(withBundleAnalyzer({
   enabled: process.env.ANALYZE === 'true',
 })(nextConfig));
