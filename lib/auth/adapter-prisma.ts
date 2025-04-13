@@ -94,7 +94,7 @@ export function PrismaAdapter(): Adapter {
             await AccountService.unlinkAccount(provider, providerAccountId)
         },
         getSessionAndUser: async (sessionToken) => {
-            const result = await SessionService.getSessionAndUser(sessionToken)
+            const result = await SessionService.getSessionAndUser(sessionToken) as any;
             if (!result || !result.user) return null
 
             return {
