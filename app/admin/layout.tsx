@@ -12,7 +12,7 @@ import 'antd/dist/reset.css'
 const ProLayout = dynamic(
     () => import('@ant-design/pro-components').then(mod => mod.ProLayout),
     {
-        loading: () => <div className="min-h-screen animate-pulse bg-gray-100" />,
+        loading: () => <div className="animate-pulse bg-gray-100" />,
         ssr: false // 禁用服务端渲染以避免水合问题
     }
 )

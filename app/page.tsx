@@ -39,7 +39,7 @@ const WhyChooseUs = dynamic(() => import('../components/why-choose-us'), {
 
 export default function Page() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 text-slate-900 overflow-hidden">
+    <div className="bg-gradient-to-br from-slate-50 via-white to-slate-50 text-slate-900 overflow-hidden">
       {/* 预加载 React 资源 */}
       <link
         rel="preload"

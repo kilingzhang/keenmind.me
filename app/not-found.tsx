@@ -1,13 +1,8 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
 
 function NotFoundContent() {
-  const searchParams = useSearchParams();
-  const from = searchParams.get('from') || '';
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full text-center space-y-8">

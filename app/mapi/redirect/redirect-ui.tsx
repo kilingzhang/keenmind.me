@@ -50,7 +50,7 @@ export default function RedirectUI({ scheme }: { scheme: string }) {
     }, [handleRedirect]);
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
+        <div className="flex flex-col items-center justify-center bg-gradient-to-b from-gray-900 to-gray-800 text-white p-4">
             <div className="w-full max-w-md mx-auto">
                 {/* Card Container */}
                 <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl p-8 shadow-xl border border-gray-700/50">
