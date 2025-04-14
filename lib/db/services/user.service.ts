@@ -8,15 +8,57 @@ import { stripUndefined } from './utils';
  */
 export class UserService {
     /**
-     * 获取所有用户
+     * 获取所有用户（分页）
      */
-    static async getUsers() {
+    static async getUsers({
+        page = 1,
+        pageSize = 10,
+        keyword = '',
+        where: customWhere,
+    }: {
+        page?: number
+        pageSize?: number
+        keyword?: string
+        where?: Prisma.usersWhereInput
+    } = {}) {
         try {
-            return await prisma().users.findMany({
-                where: {
-                    deleted_at: null
-                }
-            });
+            const where: Prisma.usersWhereInput = customWhere || {
+                deleted_at: null,
+                ...(keyword ? {
+                    OR: [
+                        { username: { contains: keyword, mode: Prisma.QueryMode.insensitive } },
+                        { nickname: { contains: keyword, mode: Prisma.QueryMode.insensitive } },
+                        { email: { contains: keyword, mode: Prisma.QueryMode.insensitive } },
+                        { phone: { contains: keyword } },
+                    ],
+                } : {}),
+            };
+
+            const [total, users] = await Promise.all([
+                prisma().users.count({ where }),
+                prisma().users.findMany({
+                    where,
+                    select: {
+                        id: true,
+                        username: true,
+                        nickname: true,
+                        email: true,
+                        phone: true,
+                        email_verified: true,
+                        phone_verified: true,
+                        status: true,
+                        created_at: true,
+                        last_login_at: true,
+                    },
+                    skip: (page - 1) * pageSize,
+                    take: pageSize,
+                    orderBy: {
+                        created_at: 'desc',
+                    },
+                })
+            ]);
+
+            return { items: users, total };
         } catch (error) {
             throw new DatabaseError('Failed to fetch users ' + (error as Error).message, 'FETCH_ERROR', error);
         }
@@ -106,8 +148,7 @@ export class UserService {
         try {
             return await prisma().users.update({
                 where: {
-                    id,
-                    deleted_at: null
+                    id: id,
                 },
                 data: stripUndefined(data),
             });
@@ -156,6 +197,20 @@ export class UserService {
             });
         } catch (error) {
             throw new DatabaseError('Failed to delete user ' + (error as Error).message, 'DELETE_ERROR', error);
+        }
+    }
+
+    /**
+     * 更新用户状态
+     */
+    static async updateUserStatus(id: string, action: 'lock' | 'unlock') {
+        try {
+            return await this.updateUser(Number(id), {
+                status: action === 'lock' ? UserStatus.LOCKED : UserStatus.ACTIVE,
+                updated_at: new Date(),
+            });
+        } catch (error) {
+            throw new DatabaseError('Failed to update user status ' + (error as Error).message, 'UPDATE_ERROR', error);
         }
     }
 } 

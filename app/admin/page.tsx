@@ -2,7 +2,6 @@
 
 import dynamic from 'next/dynamic'
 import { UserOutlined, CheckCircleOutlined } from '@ant-design/icons'
-import type { ProCardProps, StatisticCardProps } from '@ant-design/pro-components'
 
 // 动态导入组件
 const ProCard = dynamic(() => import('@ant-design/pro-components').then(mod => mod.ProCard), {
