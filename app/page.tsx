@@ -350,6 +350,7 @@ export default function Page() {
             <div>
               <h4 className="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient">关于犀知</h4>
               <p className="text-slate-600 leading-relaxed">AI驱动的开发者能力成长平台，让学习成为有趣的对话。</p>
+              <p className="text-slate-600 leading-relaxed mt-2">犀知是东莞市东城零七科技工作室（个体工商户）旗下品牌，致力于为开发者提供智能化的技术学习与成长服务。</p>
             </div>
             <div>
               <h4 className="text-xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-gradient">联系方式</h4>
@@ -387,7 +388,7 @@ export default function Page() {
 
           <div className="border-t border-slate-100 mt-12 pt-8 text-center">
             <p className="text-slate-500">
-              © {new Date().getFullYear()} 犀知 All rights reserved.
+              © {new Date().getFullYear()} 东莞市东城零七科技工作室（个体工商户） All rights reserved.
             </p>
             <a
               href="https://beian.miit.gov.cn/"
