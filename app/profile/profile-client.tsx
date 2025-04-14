@@ -8,7 +8,6 @@ import { toast } from 'sonner';
 import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount, signInWithEmail } from '@/lib/auth/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button } from "@/components/ui/button";
 
 const PROVIDER_MAP = {
     github: {

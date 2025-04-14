@@ -15,6 +15,7 @@ const createOptions = (): NextAuthConfig => {
         session: {
             strategy: 'database',
             maxAge: 60 * 60 * 24 * 14,
+            updateAge: 60 * 60 * 24 * 14,
         },
         cookies: {
             sessionToken: {
