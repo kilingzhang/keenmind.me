@@ -1,27 +1,25 @@
 'use client';
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
-
-// 管理员 ID 列表
-const ADMIN_IDS: string[] = [
-    '487878605611',
-]
+import { checkAdminById } from '@/lib/auth/admin'
 
 export default function AdminAuthGuard({ children }: { children: React.ReactNode }) {
     const router = useRouter()
     const { data: session, status } = useSession()
-
-    const isAdmin = session?.user?.id != null && ADMIN_IDS.includes(session.user.id)
+    const [isAuthorized, setIsAuthorized] = useState(false)
 
     useEffect(() => {
         if (status === 'loading') return;
 
+        const isAdmin = session?.user?.id != null && checkAdminById(session.user.id)
+        setIsAuthorized(isAdmin)
+
         if (!isAdmin) {
             router.replace('/profile')
         }
-    }, [status, router, isAdmin])
+    }, [status, router, session])
 
     if (status === 'loading') {
         return (
@@ -31,7 +29,7 @@ export default function AdminAuthGuard({ children }: { children: React.ReactNode
         )
     }
 
-    if (!isAdmin) {
+    if (!isAuthorized) {
         return null
     }
 

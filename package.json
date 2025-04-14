@@ -29,7 +29,7 @@
     "preview": "bun pages:build && wrangler pages dev",
     "deploy": "bun pages:build && wrangler pages deploy --commit-dirty=true",
     "dep": "bun run deploy",
-    "lint": "next lint",
+    "lint": "next lint && bunx tsc --noEmit",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv env.d.ts",
     "tail": "wrangler pages deployment tail --project-name keenmind",
     "analyze": "bun run build:analyze",
