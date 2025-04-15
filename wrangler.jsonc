@@ -43,8 +43,14 @@
         "DIRECT_DATABASE_URL": "postgres://postgres.mdrkxqmfboidnxuqmuko:kWpxhe2RZuk3cn^@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres",
         "OPTIMIZE_API_KEY": "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJ3aWQiOiJjbHYyZDFmdnYwNHEweDQwdDd6NWhpZGxoIiwidWlkIjoiY2x2MmQxZWw5MDRwd3g0MHRzODlyMGtkaiIsInRzIjoxNzMzMzE3OTI4Mzc2fQ.ZqsaLRK-ZBurNQRWQ7V94u1ajCoYnwupWvZ3nuWsPUS3_dy8vnauyRSV-J8nZkVsXebh9Y9cwNkrTJq4ZbYaBA",
         // openai
-        "OPENAI_BASE_URL": "https://one-key.saaskit.app/v1",
+        "GATEWAY_BASE_URL": "https://one-key.saaskit.app/v1",
         "OPENAI_API_KEY": "sk-QuxTbZCCmVO2ZeBKE50159F31b874b15B797100f43AeFeEc",
+        // langchain
+        "LANGCHAIN_ENDPOINT": "https://api.smith.langchain.com",
+        "LANGCHAIN_API_KEY": "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",
+        "LANGCHAIN_PROJECT": "KeenMind",
+        "LANGCHAIN_CALLBACKS_BACKGROUND": "true",
+        // end line 
         "END": ""
     }
 }
