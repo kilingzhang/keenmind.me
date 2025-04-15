@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Image from 'next/image';
+import { AuroraBackground } from '@/components/ui/aurora-background';
 
 export const runtime = 'nodejs';
 
@@ -48,31 +49,15 @@ export default function LoginPage() {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden">
-            {/* 极简背景效果 - 模拟图片效果 */}
+            {/* 极简背景效果 */}
             <div className="fixed inset-0 z-0">
-                {/* 主背景 - 静态渐变 */}
-                <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-pink-50 to-cyan-50" />
-
-                {/* 顶部渐变装饰 */}
-                <div className="absolute top-0 inset-x-0 h-1/4 bg-gradient-to-b from-cyan-50 to-transparent opacity-70" />
-
-                {/* 底部渐变装饰 */}
-                <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-pink-50 to-transparent opacity-70" />
-
-                {/* 流动的颜色渐变背景 - 极光效果 */}
-                <div className="absolute inset-0 overflow-hidden -z-10">
-                    {/* 色块 1: 青色 */}
-                    <div className="absolute w-[800px] h-[800px] rounded-full bg-radial-gradient-cyan blur-[120px] animate-aurora-1" style={{ top: '-20%', left: '-30%' }}></div>
-                    {/* 色块 2: 粉色 */}
-                    <div className="absolute w-[700px] h-[700px] rounded-full bg-radial-gradient-pink blur-[130px] animate-aurora-2" style={{ bottom: '-25%', right: '-35%' }}></div>
-                    {/* 色块 3: 绿色 */}
-                    <div className="absolute w-[600px] h-[600px] rounded-full bg-radial-gradient-lime blur-[110px] animate-aurora-3" style={{ top: '10%', right: '-20%' }}></div>
-                    {/* 色块 4: 紫色 */}
-                    <div className="absolute w-[500px] h-[500px] rounded-full bg-radial-gradient-purple blur-[100px] animate-aurora-4" style={{ bottom: '5%', left: '0%' }}></div>
-                </div>
-
-                {/* 极淡的装饰线条 - 模拟图片中的波纹 */}
-                <div className="absolute bottom-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-200/20 to-transparent"></div>
+                {/* 使用增强的 AuroraBackground 组件，包含所有背景效果 */}
+                <AuroraBackground
+                    withStaticGradient={true}
+                    withTopGradient={true}
+                    withBottomGradient={true}
+                    withLine={true}
+                />
             </div>
 
             {/* 内容区域 */}
@@ -197,87 +182,6 @@ export default function LoginPage() {
                     </div>
                 </div>
             </div>
-
-            {/* 自定义动画效果 */}
-            <style jsx global>{`
-                /* 极光动画 1 - 更大范围移动 */
-                @keyframes aurora-1 {
-                    0%, 100% { transform: translate(0, 0); opacity: 0.1; }
-                    50% { transform: translate(300px, 200px); opacity: 0.6; } /* 大幅增加移动，增强透明度 */
-                }
-                
-                /* 极光动画 2 - 更大范围移动 */
-                @keyframes aurora-2 {
-                    0%, 100% { transform: translate(0, 0); opacity: 0.1; }
-                    50% { transform: translate(-250px, -150px); opacity: 0.5; } /* 大幅增加移动，增强透明度 */
-                }
-                
-                /* 极光动画 3 - 更大范围移动 */
-                @keyframes aurora-3 {
-                    0%, 100% { transform: translate(0, 0); opacity: 0.05; }
-                    50% { transform: translate(200px, -300px); opacity: 0.55; } /* 大幅增加移动，增强透明度 */
-                }
-                
-                /* 极光动画 4 - 更大范围移动 */
-                @keyframes aurora-4 {
-                    0%, 100% { transform: translate(0, 0); opacity: 0.08; }
-                    50% { transform: translate(-150px, 250px); opacity: 0.5; } /* 大幅增加移动，增强透明度 */
-                }
-                
-                .animate-aurora-1 {
-                    animation: aurora-1 8s ease-in-out infinite; /* 再次加快速度 */
-                }
-                .animate-aurora-2 {
-                    animation: aurora-2 10s ease-in-out infinite; /* 再次加快速度 */
-                    animation-delay: 1s;
-                }
-                .animate-aurora-3 {
-                    animation: aurora-3 7s ease-in-out infinite; /* 再次加快速度 */
-                    animation-delay: 2s;
-                }
-                .animate-aurora-4 {
-                    animation: aurora-4 9s ease-in-out infinite; /* 再次加快速度 */
-                    animation-delay: 2.5s;
-                }
-                
-                /* 为色块定义径向渐变背景 */
-                .bg-radial-gradient-cyan {
-                    background-image: radial-gradient(circle, rgba(0, 180, 216, 0.4) 0%, transparent 70%);
-                }
-                .bg-radial-gradient-pink {
-                    background-image: radial-gradient(circle, rgba(232, 121, 249, 0.3) 0%, transparent 70%);
-                }
-                .bg-radial-gradient-lime {
-                    background-image: radial-gradient(circle, rgba(163, 230, 53, 0.35) 0%, transparent 70%);
-                }
-                .bg-radial-gradient-purple {
-                    background-image: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
-                }
-                
-                /* 登录容器悬浮效果 - 调整回更微妙 */
-                @keyframes subtle-float {
-                    0%, 100% { transform: translateY(0); box-shadow: 0 8px 20px -12px rgba(31, 41, 55, 0.1); }
-                    50% { transform: translateY(-3px); box-shadow: 0 15px 30px -15px rgba(31, 41, 55, 0.15); }
-                }
-                
-                .animate-subtle-float {
-                    animation: subtle-float 6s ease-in-out infinite;
-                    transition: all 0.3s ease;
-                }
-                
-                .animate-subtle-float:hover {
-                    transform: translateY(-4px);
-                    box-shadow: 0 20px 35px -15px rgba(31, 41, 55, 0.2);
-                }
-                
-                .animate-fade-in {
-                    animation: fade-in 0.6s ease-out forwards;
-                }
-                @keyframes fade-in {
-                    from { opacity: 0; transform: translateY(-10px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
-            `}</style>
         </div>
     );
 }

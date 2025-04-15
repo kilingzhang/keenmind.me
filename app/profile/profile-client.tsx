@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { bindGithubAccount, bindWechatAccount, deleteAccount, logout, unlinkAccount, signInWithEmail } from '@/lib/auth/actions';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 const PROVIDER_MAP = {
     github: {
@@ -198,8 +199,18 @@ export default function ProfileClient({ user }: ProfileClientProps) {
     }), [user?.status]);
 
     return (
-        <div className="bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-3xl mx-auto space-y-6">
+        <div className="relative min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+            {/* 极简背景效果 */}
+            <div className="fixed inset-0 z-[-1]">
+                {/* 使用增强的 AuroraBackground 组件，包含所有背景效果 */}
+                <AuroraBackground
+                    withStaticGradient={true}
+                    withTopGradient={true}
+                    withBottomGradient={true}
+                    withLine={true}
+                />
+            </div>
+            <div className="relative z-10 max-w-3xl mx-auto space-y-6">
                 {/* Basic Information */}
                 <div className="bg-white shadow rounded-lg overflow-hidden">
                     <div className="px-4 py-5 sm:px-6 flex justify-between items-center">

@@ -2,6 +2,7 @@
 
 import { cn } from '@/lib/utils';
 import * as React from 'react';
+import { AuroraBackground } from '@/components/ui/aurora-background';
 
 interface LoadingIndicatorProps {
     message?: string;
@@ -34,8 +35,19 @@ export function LoadingIndicator({
     const Wrapper = ({ children }: { children: React.ReactNode }) => {
         if (fullscreen) {
             return (
-                <div className="min-h-screen min-w-full flex items-center justify-center bg-white">
-                    {children}
+                <div className="min-h-screen min-w-full flex items-center justify-center relative overflow-hidden">
+                    <div className="fixed inset-0 z-0">
+                        <AuroraBackground
+                            withStaticGradient={true}
+                            withTopGradient={true}
+                            withBottomGradient={true}
+                            withLine={true}
+                        />
+                    </div>
+
+                    <div className="relative z-10 bg-white/60 backdrop-blur-sm px-8 py-6 rounded-xl shadow-sm">
+                        {children}
+                    </div>
                 </div>
             );
         }

@@ -3,8 +3,8 @@
 import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import type { ProColumns, ActionType, RequestData } from '@ant-design/pro-components'
-import { LockOutlined, UnlockOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined, UserSwitchOutlined, MoreOutlined, EditOutlined } from '@ant-design/icons'
-import { Tag, Button, Space, Modal, message as staticMessage, Tooltip, Card, Dropdown, type MenuProps, App, notification } from 'antd'
+import { LockOutlined, UnlockOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined, UserSwitchOutlined, MoreOutlined, EditOutlined, CheckCircleOutlined, LoginOutlined, CalendarOutlined } from '@ant-design/icons'
+import { Tag, Button, Space, Modal, message as staticMessage, Tooltip, Card, Dropdown, type MenuProps, App, notification, Typography } from 'antd'
 import dayjs from 'dayjs'
 import type { users, UserStatus } from '@/prisma/client'
 
@@ -254,18 +254,28 @@ function UserListContent() {
             dataIndex: 'id',
             copyable: true,
             width: 'auto',
-            render: (_, record) => record.id.toString(),
+            render: (_, record) => (
+                <Typography.Text copyable className="user-id">
+                    {record.id.toString()}
+                </Typography.Text>
+            ),
         },
         {
             title: '用户名',
             dataIndex: 'username',
             copyable: true,
             width: 'auto',
+            render: (_, record) => (
+                <Typography.Text copyable strong>
+                    {record.username}
+                </Typography.Text>
+            ),
         },
         {
             title: '昵称',
             dataIndex: 'nickname',
             width: 'auto',
+            render: (text) => <Typography.Text>{text}</Typography.Text>,
         },
         {
             title: '邮箱',
@@ -273,8 +283,12 @@ function UserListContent() {
             copyable: true,
             render: (_, record) => (
                 <Space>
-                    {record.email}
-                    {record.email_verified && <Tag color="success">已验证</Tag>}
+                    <Typography.Text copyable>{record.email}</Typography.Text>
+                    {record.email_verified && (
+                        <Tag color="success" className="verified-tag">
+                            <CheckCircleOutlined /> 已验证
+                        </Tag>
+                    )}
                 </Space>
             ),
         },
@@ -284,8 +298,12 @@ function UserListContent() {
             copyable: true,
             render: (_, record) => (
                 <Space>
-                    {record.phone}
-                    {record.phone_verified && <Tag color="success">已验证</Tag>}
+                    <Typography.Text copyable>{record.phone}</Typography.Text>
+                    {record.phone_verified && (
+                        <Tag color="success" className="verified-tag">
+                            <CheckCircleOutlined /> 已验证
+                        </Tag>
+                    )}
                 </Space>
             ),
         },
@@ -300,7 +318,10 @@ function UserListContent() {
                 BANNED: { text: '已封禁', status: 'Error' },
             },
             render: (_, record) => (
-                <Tag color={statusColorMap[record.status]}>
+                <Tag
+                    color={statusColorMap[record.status]}
+                    className={`status-tag status-${record.status.toLowerCase()}`}
+                >
                     {statusTextMap[record.status]}
                 </Tag>
             ),
@@ -312,6 +333,12 @@ function UserListContent() {
             width: 'auto',
             search: false,
             sorter: (a, b) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
+            render: (_, record) => (
+                <Typography.Text type="secondary">
+                    <CalendarOutlined style={{ marginRight: 4 }} />
+                    {dayjs(record.created_at).format('YYYY-MM-DD HH:mm:ss')}
+                </Typography.Text>
+            ),
         },
         {
             title: '最后登录',
@@ -320,6 +347,12 @@ function UserListContent() {
             width: 'auto',
             search: false,
             sorter: (a, b) => dayjs(a.last_login_at).unix() - dayjs(b.last_login_at).unix(),
+            render: (_, record) => (
+                <Typography.Text type="secondary">
+                    <LoginOutlined style={{ marginRight: 4 }} />
+                    {dayjs(record.last_login_at).format('YYYY-MM-DD HH:mm:ss')}
+                </Typography.Text>
+            ),
         },
         {
             title: '操作',
@@ -350,7 +383,12 @@ function UserListContent() {
 
                 return (
                     <Dropdown menu={{ items }} trigger={['click']}>
-                        <Button type="link" icon={<MoreOutlined />} loading={loadingStates[record.id.toString()]} />
+                        <Button
+                            type="text"
+                            icon={<MoreOutlined />}
+                            loading={loadingStates[record.id.toString()]}
+                            className="action-button"
+                        />
                     </Dropdown>
                 )
             },
@@ -374,7 +412,7 @@ function UserListContent() {
     }
 
     return (
-        <Card>
+        <Card className="user-list-card" bordered={false}>
             <ProTable<users>
                 columns={columns}
                 actionRef={actionRef}
@@ -471,19 +509,25 @@ function UserListContent() {
                         <Button
                             key="search"
                             type="primary"
+                            size="small"
                             onClick={() => form?.submit()}
                             icon={<SearchOutlined />}
                             loading={searchLoading}
+                            className="search-button"
+                            shape="round"
                         >
                             {searchText}
                         </Button>,
                         <Button
                             key="reset"
+                            size="small"
                             onClick={() => {
                                 form?.resetFields()
                                 form?.submit()
                             }}
                             icon={<ReloadOutlined />}
+                            className="reset-button"
+                            shape="round"
                         >
                             {resetText}
                         </Button>,
@@ -507,10 +551,11 @@ function UserListContent() {
                         disabled={selectedRows.length === 0}
                     >
                         <Button
-                            type="primary"
+                            type="default"
                             loading={batchLoading}
                             disabled={selectedRows.length === 0}
                             icon={<UserSwitchOutlined />}
+                            className="batch-action-button"
                         >
                             批量操作 {selectedRows.length > 0 ? `(${selectedRows.length})` : ''}
                         </Button>
@@ -518,13 +563,14 @@ function UserListContent() {
                     <Tooltip key="tooltip" title={selectedRows.length === 0 ? '请先选择用户' : undefined}>
                         <Button
                             key="export"
-                            type="primary"
+                            type="default"
                             loading={loadingStates['export']}
                             disabled={selectedRows.length === 0}
                             onClick={handleExport}
                             icon={<DownloadOutlined />}
+                            className="export-button"
                         >
-                            导出所选用户 {selectedRows.length > 0 ? `(${selectedRows.length})` : ''}
+                            导出所选 {selectedRows.length > 0 ? `(${selectedRows.length})` : ''}
                         </Button>
                     </Tooltip>,
                 ]}
@@ -534,7 +580,95 @@ function UserListContent() {
                     showSizeChanger: true,
                     pageSizeOptions: ['10', '20', '50', '100'],
                 }}
+                className="user-table"
             />
+
+            <style jsx global>{`
+                .user-list-card {
+                    border-radius: 12px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+                    overflow: hidden;
+                }
+                
+                .user-table .ant-pro-table-search {
+                    margin-bottom: 24px;
+                    padding: 24px;
+                    background: linear-gradient(to right, #f8f9fa, #ffffff);
+                    border-radius: 8px;
+                }
+                
+                .user-table .ant-table-thead > tr > th {
+                    background-color: #fafafa;
+                    font-weight: 600;
+                }
+                
+                .user-table .ant-table-tbody > tr:hover > td {
+                    background-color: #f0f7ff;
+                }
+                
+                .user-table .ant-table-tbody > tr.ant-table-row-selected > td {
+                    background-color: #e6f7ff;
+                }
+                
+                .status-tag {
+                    border-radius: 12px;
+                    padding: 0 10px;
+                    font-weight: 500;
+                }
+                
+                .status-active {
+                    background-color: #f6ffed;
+                    border-color: #b7eb8f;
+                }
+                
+                .status-inactive {
+                    background-color: #f9f9f9;
+                    border-color: #d9d9d9;
+                }
+                
+                .status-locked {
+                    background-color: #fff7e6;
+                    border-color: #ffd591;
+                }
+                
+                .status-banned {
+                    background-color: #fff1f0;
+                    border-color: #ffa39e;
+                }
+                
+                .verified-tag {
+                    display: inline-flex;
+                    align-items: center;
+                    border-radius: 10px;
+                    font-size: 12px;
+                }
+                
+                .action-button:hover {
+                    background-color: #f0f0f0;
+                    border-radius: 50%;
+                }
+                
+                .batch-action-button, .export-button {
+                    border-radius: 4px;
+                    height: 32px;
+                    font-size: 13px;
+                    margin-right: 8px;
+                }
+                
+                .search-button, .reset-button {
+                    border-radius: 15px;
+                    height: 28px;
+                    font-size: 12px;
+                    margin-left: 4px;
+                }
+                
+                .user-id {
+                    font-family: monospace;
+                    background: #f5f5f5;
+                    padding: 2px 6px;
+                    border-radius: 4px;
+                }
+            `}</style>
         </Card>
     )
 }

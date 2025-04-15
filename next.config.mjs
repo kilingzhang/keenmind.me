@@ -20,8 +20,8 @@ const nextConfig = {
   },
   experimental: {
     serverActions: {
-      allowedForwardedHosts: ['keenmind.me'],
-      allowedOrigins: ['https://keenmind.me']
+      allowedForwardedHosts: ['keenmind.me', 'admin.keenmind.me'],
+      allowedOrigins: ['https://keenmind.me', 'https://admin.keenmind.me']
     },
     optimizeCss: true,
     optimizePackageImports: [
@@ -33,6 +33,15 @@ const nextConfig = {
     ],
     scrollRestoration: true,
     workerThreads: true
+  },
+  redirects: async () => {
+    return [
+      {
+        source: '/admin',
+        destination: '/admin/dashboard',
+        permanent: true,
+      },
+    ];
   },
   images: {
     formats: ['image/avif', 'image/webp'],
@@ -47,71 +56,6 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        source: '/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
-          },
-          {
-            key: 'Expires',
-            value: new Date(Date.now() + 3600 * 1000).toUTCString(),
-          },
-        ],
-      },
-      {
-        source: '/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-          {
-            key: 'Expires',
-            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
-          },
-        ],
-      },
-      {
-        source: '/_next/image/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=31536000',
-          },
-          {
-            key: 'Expires',
-            value: new Date(Date.now() + 86400 * 1000).toUTCString(),
-          },
-        ],
-      },
-      {
-        source: '/:path*.png',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-          {
-            key: 'Expires',
-            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
-          },
-        ],
-      },
-      {
-        source: '/:path*.svg',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-          {
-            key: 'Expires',
-            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
-          },
-        ],
-      },
     ];
   },
 };

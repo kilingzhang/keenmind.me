@@ -16,7 +16,7 @@ const AuthGuard = dynamic(() => import('@/components/auth-guard'), {
 });
 
 // 动态加载缩放阻止组件
-const DisableZoom = dynamic(() => import('@/components/disable-zoom'), {
+const DisableZoom = dynamic(() => import('@/components/ui/disable-zoom'), {
   ssr: false,
 });
 

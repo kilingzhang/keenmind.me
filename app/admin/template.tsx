@@ -3,6 +3,7 @@
 import { ConfigProvider } from 'antd'
 import zhCN from 'antd/locale/zh_CN'
 import { memo } from 'react'
+import { AuroraBackground } from '@/components/ui/aurora-background'
 
 const Template = memo(function Template({ children }: { children: React.ReactNode }) {
     return (
@@ -12,26 +13,26 @@ const Template = memo(function Template({ children }: { children: React.ReactNod
                 token: {
                     colorPrimary: '#ec4899',
                     borderRadius: 12,
-                    colorBgContainer: 'rgba(255, 255, 255, 0.6)',
-                    colorBgLayout: '#f9fafb',
+                    colorBgContainer: 'rgba(255, 255, 255, 0.65)',
+                    colorBgLayout: 'transparent',
                     colorTextBase: '#1f2937',
                     colorBorder: '#f1f5f9',
                     fontSize: 14,
                     controlHeight: 36,
-                    colorBgElevated: 'rgba(255, 255, 255, 0.7)',
-                    boxShadowSecondary: '0 4px 12px rgba(0, 0, 0, 0.03)',
+                    colorBgElevated: 'rgba(255, 255, 255, 0.75)',
+                    boxShadowSecondary: '0 4px 12px rgba(0, 0, 0, 0.04)',
                 },
                 components: {
                     Card: {
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.02)',
+                        boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.03)',
                         paddingLG: 24,
                         borderRadiusLG: 16,
-                        colorBgContainer: 'rgba(255, 255, 255, 0.6)',
+                        colorBgContainer: 'rgba(255, 255, 255, 0.75)',
                     },
                     Table: {
                         borderRadius: 16,
-                        boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.02)',
-                        colorBgContainer: 'rgba(255, 255, 255, 0.6)',
+                        boxShadow: '0 2px 8px 0 rgba(0, 0, 0, 0.03)',
+                        colorBgContainer: 'rgba(255, 255, 255, 0.75)',
                     },
                     Button: {
                         borderRadius: 12,
@@ -46,17 +47,24 @@ const Template = memo(function Template({ children }: { children: React.ReactNod
                         controlHeight: 36,
                     },
                     Layout: {
-                        headerBg: 'rgba(255, 255, 255, 0.7)',
+                        headerBg: 'rgba(255, 255, 255, 0.8)',
                         bodyBg: 'transparent',
-                        triggerBg: 'rgba(255, 255, 255, 0.6)',
+                        triggerBg: 'rgba(255, 255, 255, 0.75)',
                     },
                     Menu: {
                         itemBg: 'transparent',
                         subMenuItemBg: 'transparent',
-                        itemSelectedBg: 'rgba(236, 72, 153, 0.08)',
+                        itemSelectedBg: 'rgba(236, 72, 153, 0.12)',
                         itemSelectedColor: '#ec4899',
                         itemHoverColor: '#ec4899',
                         borderRadius: 12,
+                        subMenuItemBorderRadius: 8,
+                        itemHeight: 40,
+                        horizontalItemSelectedBg: 'rgba(236, 72, 153, 0.08)',
+                        colorItemTextHover: '#ec4899',
+                        darkItemHoverColor: '#ec4899',
+                        darkSubMenuItemBg: 'rgba(255, 255, 255, 0.02)',
+                        popupBg: 'rgba(255, 255, 255, 0.9)',
                     }
                 },
             }}
@@ -65,26 +73,15 @@ const Template = memo(function Template({ children }: { children: React.ReactNod
             space={{ size: 'middle' }}
             virtual={true}
         >
-            <div className="relative">
-                {/* 背景效果 - 降低z-index确保不会遮挡交互元素 */}
+            <div className="relative min-h-screen">
+                {/* 使用 AuroraBackground 组件替换旧的背景效果 */}
                 <div className="fixed inset-0 z-[-1]">
-                    {/* 主背景 - 静态渐变 */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-pink-50 via-pink-50 to-cyan-50" />
-
-                    {/* 顶部渐变装饰 */}
-                    <div className="absolute top-0 inset-x-0 h-1/4 bg-gradient-to-b from-cyan-50 to-transparent opacity-70" />
-
-                    {/* 底部渐变装饰 */}
-                    <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-pink-50 to-transparent opacity-70" />
-
-                    {/* 极简柔和流动效果 */}
-                    <div className="absolute inset-0 opacity-30 pointer-events-none">
-                        <div className="absolute inset-0 bg-gradient-radial from-pink-100/20 to-transparent animate-pulse-very-slow" style={{ transformOrigin: 'center' }} />
-                        <div className="absolute inset-0 bg-gradient-radial from-cyan-100/20 to-transparent animate-pulse-very-slow delay-1000" style={{ transformOrigin: 'center' }} />
-                    </div>
-
-                    {/* 极淡的装饰线条 */}
-                    <div className="absolute bottom-1/4 left-0 right-0 h-px bg-gradient-to-r from-transparent via-pink-200/20 to-transparent pointer-events-none"></div>
+                    <AuroraBackground
+                        withStaticGradient={true}
+                        withTopGradient={true}
+                        withBottomGradient={true}
+                        withLine={true}
+                    />
                 </div>
 
                 <div className="relative">
@@ -94,25 +91,104 @@ const Template = memo(function Template({ children }: { children: React.ReactNod
 
             {/* 自定义动画样式 */}
             <style jsx global>{`
-                @keyframes pulse-very-slow {
-                    0% { opacity: 0.1; transform: scale(1); }
-                    50% { opacity: 0.3; transform: scale(1.05); }
-                    100% { opacity: 0.1; transform: scale(1); }
-                }
-                .animate-pulse-very-slow {
-                    animation: pulse-very-slow 10s ease-in-out infinite;
-                }
-                .delay-1000 {
-                    animation-delay: 5s;
-                }
-                .bg-gradient-radial {
-                    background-image: radial-gradient(var(--tw-gradient-stops));
-                }
-                
                 /* 确保按钮可点击 */
-                .ant-btn {
+                .ant-btn, .ant-dropdown-trigger, .ant-select-selector, .ant-input {
                     position: relative;
                     z-index: 1;
+                }
+                
+                /* 提升表格和卡片的视觉质量 */
+                .ant-table, .ant-card, .ant-pro-card {
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(241, 245, 249, 0.4) !important;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+                    overflow: hidden;
+                }
+                
+                /* 增强表单控件可见性 */
+                .ant-input, .ant-select-selector, .ant-picker {
+                    background: rgba(255, 255, 255, 0.6) !important;
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(241, 245, 249, 0.6) !important;
+                }
+                
+                /* 美化滚动条 */
+                ::-webkit-scrollbar {
+                    width: 8px;
+                    height: 8px;
+                }
+                
+                ::-webkit-scrollbar-track {
+                    background: rgba(241, 245, 249, 0.3);
+                }
+                
+                ::-webkit-scrollbar-thumb {
+                    background: rgba(203, 213, 225, 0.5);
+                    border-radius: 4px;
+                }
+                
+                ::-webkit-scrollbar-thumb:hover {
+                    background: rgba(148, 163, 184, 0.5);
+                }
+                
+                /* 确保模态框和抽屉组件正确显示 */
+                .ant-modal-content, .ant-drawer-content {
+                    background: rgba(255, 255, 255, 0.9) !important;
+                    backdrop-filter: blur(16px) !important;
+                }
+                
+                /* 子菜单样式美化 */
+                .ant-menu-submenu-title {
+                    transition: all 0.3s ease !important;
+                }
+                
+                .ant-menu-submenu-open > .ant-menu-submenu-title {
+                    color: #ec4899 !important;
+                    background: rgba(236, 72, 153, 0.05) !important;
+                }
+                
+                .ant-menu-submenu-active > .ant-menu-submenu-title {
+                    color: #ec4899 !important;
+                }
+                
+                .ant-menu-submenu-title .ant-menu-submenu-arrow {
+                    transition: all 0.3s ease !important;
+                }
+                
+                .ant-menu-submenu-open > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+                    color: #ec4899 !important;
+                    transform: rotate(180deg) !important;
+                }
+                
+                .ant-menu-submenu-vertical > .ant-menu-submenu-title .ant-menu-submenu-arrow {
+                    right: 16px !important;
+                }
+                
+                .ant-menu-submenu-vertical .ant-menu-item {
+                    padding-left: 38px !important;
+                    height: 32px !important;
+                    line-height: 32px !important;
+                    margin: 4px 8px !important;
+                }
+                
+                .ant-menu-item:active {
+                    background: rgba(236, 72, 153, 0.10) !important;
+                }
+                
+                .ant-menu-submenu-vertical > .ant-menu {
+                    border-radius: 8px !important;
+                    padding: 4px 0 !important;
+                    background-color: rgba(255, 255, 255, 0.03) !important;
+                }
+                
+                .ant-menu-submenu .ant-menu-submenu-popup {
+                    backdrop-filter: blur(16px) !important;
+                }
+                
+                .ant-menu-sub.ant-menu-inline {
+                    background: rgba(0, 0, 0, 0.01) !important;
+                    border-radius: 8px !important;
+                    margin: 4px 8px !important;
                 }
             `}</style>
         </ConfigProvider>
