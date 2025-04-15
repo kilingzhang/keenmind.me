@@ -59,10 +59,16 @@ export default function LoginPage() {
                 {/* 底部渐变装饰 */}
                 <div className="absolute bottom-0 inset-x-0 h-1/3 bg-gradient-to-t from-pink-50 to-transparent opacity-70" />
 
-                {/* 极简柔和流动效果 */}
-                <div className="absolute inset-0 opacity-30">
-                    <div className="absolute inset-0 bg-gradient-radial from-pink-100/20 to-transparent animate-pulse-very-slow" style={{ transformOrigin: 'center' }} />
-                    <div className="absolute inset-0 bg-gradient-radial from-cyan-100/20 to-transparent animate-pulse-very-slow delay-1000" style={{ transformOrigin: 'center' }} />
+                {/* 流动的颜色渐变背景 - 极光效果 */}
+                <div className="absolute inset-0 overflow-hidden -z-10">
+                    {/* 色块 1: 青色 */}
+                    <div className="absolute w-[800px] h-[800px] rounded-full bg-radial-gradient-cyan blur-[120px] animate-aurora-1" style={{ top: '-20%', left: '-30%' }}></div>
+                    {/* 色块 2: 粉色 */}
+                    <div className="absolute w-[700px] h-[700px] rounded-full bg-radial-gradient-pink blur-[130px] animate-aurora-2" style={{ bottom: '-25%', right: '-35%' }}></div>
+                    {/* 色块 3: 绿色 */}
+                    <div className="absolute w-[600px] h-[600px] rounded-full bg-radial-gradient-lime blur-[110px] animate-aurora-3" style={{ top: '10%', right: '-20%' }}></div>
+                    {/* 色块 4: 紫色 */}
+                    <div className="absolute w-[500px] h-[500px] rounded-full bg-radial-gradient-purple blur-[100px] animate-aurora-4" style={{ bottom: '5%', left: '0%' }}></div>
                 </div>
 
                 {/* 极淡的装饰线条 - 模拟图片中的波纹 */}
@@ -72,7 +78,7 @@ export default function LoginPage() {
             {/* 内容区域 */}
             <div className="relative z-10 w-full max-w-[380px] sm:max-w-[480px] mx-auto px-4">
                 {/* 品牌标识 */}
-                <div className="mb-12 flex flex-col items-center animate-fade-in">
+                <div className="mb-10 flex flex-col items-center animate-fade-in">
                     <div className="w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center mb-4 relative">
                         <Image
                             src="/logo.png"
@@ -87,7 +93,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* 登录表单容器 */}
-                <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 sm:p-10 shadow-sm border border-pink-100/20 relative overflow-hidden">
+                <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-8 sm:p-10 shadow-sm border border-pink-100/20 relative overflow-hidden animate-subtle-float">
                     {/* 微妙的内部光效 */}
                     <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-200/30 to-transparent"></div>
                     <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-pink-200/30 to-transparent"></div>
@@ -111,7 +117,7 @@ export default function LoginPage() {
                                         className="w-full flex items-center justify-center py-3 px-4 rounded-xl text-sm sm:text-base font-medium text-white bg-gradient-to-r from-green-500 to-green-600 hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-all duration-300 hover:scale-[1.01]"
                                     >
                                         <div className="flex items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" fill-rule="evenodd" clip-rule="evenodd">
+                                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24" fillRule="evenodd" clipRule="evenodd">
                                                 <path d="M12 0c-6.626 0-12 5.372-12 12 0 6.627 5.374 12 12 12 6.627 0 12-5.373 12-12 0-6.628-5.373-12-12-12zm5.543 16.389c.889-.644 1.457-1.597 1.457-2.656 0-1.94-1.888-3.514-4.217-3.514-2.329 0-4.217 1.574-4.217 3.514 0 1.941 1.888 3.514 4.217 3.514.481 0 .946-.068 1.377-.192l.124-.019c.081 0 .154.025.224.065l.923.533.081.026c.078 0 .14-.063.14-.14l-.022-.103-.19-.709-.015-.09c0-.094.047-.178.118-.229zm-7.483-10.049c-2.794 0-5.06 1.888-5.06 4.217 0 1.27.682 2.414 1.748 3.187.086.061.142.161.142.275l-.018.107-.228.851-.027.123c0 .093.076.169.169.169l.097-.032 1.108-.639c.083-.048.172-.078.269-.078l.149.022c.516.149 1.074.231 1.651.231l.278-.006c-.11-.329-.17-.675-.17-1.034 0-2.123 2.066-3.845 4.615-3.845l.275.007c-.381-2.015-2.473-3.555-4.998-3.555zm3.317 6.831c-.31 0-.562-.252-.562-.562 0-.311.252-.562.562-.562.311 0 .563.251.563.562 0 .31-.252.562-.563.562zm2.812 0c-.311 0-.562-.252-.562-.562 0-.311.251-.562.562-.562.31 0 .562.251.562.562 0 .31-.252.562-.562.562zm-7.815-3.289c-.373 0-.675-.302-.675-.675 0-.372.302-.674.675-.674.372 0 .674.302.674.674 0 .373-.302.675-.674.675zm3.373 0c-.373 0-.675-.302-.675-.675 0-.372.302-.674.675-.674.373 0 .675.302.675.674 0 .373-.302.675-.675.675z" />
                                             </svg>
                                             <span className="ml-4">使用微信登录</span>
@@ -161,7 +167,7 @@ export default function LoginPage() {
                                     type="email"
                                     name="email"
                                     required
-                                    className="w-full pl-10 px-3 sm:px-4 py-2 sm:py-3 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-pink-200 focus:border-pink-200 transition-all duration-300 bg-white/70"
+                                    className="w-full pl-10 sm:pl-12 px-3 sm:px-4 py-2 sm:py-3 border border-slate-100 rounded-xl text-sm focus:ring-2 focus:ring-pink-200 focus:border-pink-200 transition-all duration-300 bg-white/70"
                                     placeholder="请输入您的邮箱"
                                     aria-label="邮箱"
                                 />
@@ -194,26 +200,82 @@ export default function LoginPage() {
 
             {/* 自定义动画效果 */}
             <style jsx global>{`
-                @keyframes pulse-very-slow {
-                    0% { opacity: 0.1; transform: scale(1); }
-                    50% { opacity: 0.3; transform: scale(1.05); }
-                    100% { opacity: 0.1; transform: scale(1); }
+                /* 极光动画 1 - 更大范围移动 */
+                @keyframes aurora-1 {
+                    0%, 100% { transform: translate(0, 0); opacity: 0.1; }
+                    50% { transform: translate(300px, 200px); opacity: 0.6; } /* 大幅增加移动，增强透明度 */
                 }
-                .animate-pulse-very-slow {
-                    animation: pulse-very-slow 10s ease-in-out infinite;
+                
+                /* 极光动画 2 - 更大范围移动 */
+                @keyframes aurora-2 {
+                    0%, 100% { transform: translate(0, 0); opacity: 0.1; }
+                    50% { transform: translate(-250px, -150px); opacity: 0.5; } /* 大幅增加移动，增强透明度 */
                 }
-                .delay-1000 {
-                    animation-delay: 5s;
+                
+                /* 极光动画 3 - 更大范围移动 */
+                @keyframes aurora-3 {
+                    0%, 100% { transform: translate(0, 0); opacity: 0.05; }
+                    50% { transform: translate(200px, -300px); opacity: 0.55; } /* 大幅增加移动，增强透明度 */
                 }
+                
+                /* 极光动画 4 - 更大范围移动 */
+                @keyframes aurora-4 {
+                    0%, 100% { transform: translate(0, 0); opacity: 0.08; }
+                    50% { transform: translate(-150px, 250px); opacity: 0.5; } /* 大幅增加移动，增强透明度 */
+                }
+                
+                .animate-aurora-1 {
+                    animation: aurora-1 8s ease-in-out infinite; /* 再次加快速度 */
+                }
+                .animate-aurora-2 {
+                    animation: aurora-2 10s ease-in-out infinite; /* 再次加快速度 */
+                    animation-delay: 1s;
+                }
+                .animate-aurora-3 {
+                    animation: aurora-3 7s ease-in-out infinite; /* 再次加快速度 */
+                    animation-delay: 2s;
+                }
+                .animate-aurora-4 {
+                    animation: aurora-4 9s ease-in-out infinite; /* 再次加快速度 */
+                    animation-delay: 2.5s;
+                }
+                
+                /* 为色块定义径向渐变背景 */
+                .bg-radial-gradient-cyan {
+                    background-image: radial-gradient(circle, rgba(0, 180, 216, 0.4) 0%, transparent 70%);
+                }
+                .bg-radial-gradient-pink {
+                    background-image: radial-gradient(circle, rgba(232, 121, 249, 0.3) 0%, transparent 70%);
+                }
+                .bg-radial-gradient-lime {
+                    background-image: radial-gradient(circle, rgba(163, 230, 53, 0.35) 0%, transparent 70%);
+                }
+                .bg-radial-gradient-purple {
+                    background-image: radial-gradient(circle, rgba(168, 85, 247, 0.25) 0%, transparent 70%);
+                }
+                
+                /* 登录容器悬浮效果 - 调整回更微妙 */
+                @keyframes subtle-float {
+                    0%, 100% { transform: translateY(0); box-shadow: 0 8px 20px -12px rgba(31, 41, 55, 0.1); }
+                    50% { transform: translateY(-3px); box-shadow: 0 15px 30px -15px rgba(31, 41, 55, 0.15); }
+                }
+                
+                .animate-subtle-float {
+                    animation: subtle-float 6s ease-in-out infinite;
+                    transition: all 0.3s ease;
+                }
+                
+                .animate-subtle-float:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 20px 35px -15px rgba(31, 41, 55, 0.2);
+                }
+                
                 .animate-fade-in {
                     animation: fade-in 0.6s ease-out forwards;
                 }
                 @keyframes fade-in {
                     from { opacity: 0; transform: translateY(-10px); }
                     to { opacity: 1; transform: translateY(0); }
-                }
-                .bg-gradient-radial {
-                    background-image: radial-gradient(var(--tw-gradient-stops));
                 }
             `}</style>
         </div>

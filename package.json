@@ -52,6 +52,7 @@
     "antd": "^5.24.7",
     "class-variance-authority": "^0.7.1",
     "critters": "^0.0.25",
+    "framer-motion": "^12.7.3",
     "install": "^0.13.0",
     "lodash": "^4.17.21",
     "next": "14.2.26",
@@ -62,7 +63,8 @@
     "react-dom": "^18",
     "sonner": "^1.7.0",
     "tsx": "^4.19.2",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "1",

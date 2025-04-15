@@ -39,8 +39,8 @@ const createOptions = (): NextAuthConfig => {
         },
         session: {
             strategy: 'jwt',
-            maxAge: 60 * 60 * 24 * 14,
-            updateAge: 60 * 60 * 24 * 14,
+            maxAge: 1209600,
+            updateAge: 1209600,
         },
         cookies: {
             sessionToken: {

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
 import { SessionProvider } from "next-auth/react";
 import dynamic from 'next/dynamic';
@@ -14,6 +14,19 @@ const ErrorHandler = dynamic(() => import('@/components/error-handler'), {
 const AuthGuard = dynamic(() => import('@/components/auth-guard'), {
   ssr: false,
 });
+
+// 动态加载缩放阻止组件
+const DisableZoom = dynamic(() => import('@/components/disable-zoom'), {
+  ssr: false,
+});
+
+// 视口配置
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   title: {
@@ -48,6 +61,7 @@ export default function RootLayout({
           <SessionProvider>
             <Toaster position="top-center" />
             <ErrorHandler />
+            <DisableZoom />
             <AuthGuard>
               {children}
             </AuthGuard>

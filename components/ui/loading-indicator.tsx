@@ -34,7 +34,7 @@ export function LoadingIndicator({
     const Wrapper = ({ children }: { children: React.ReactNode }) => {
         if (fullscreen) {
             return (
-                <div className="min-h-screen min-w-full flex items-center justify-center">
+                <div className="min-h-screen min-w-full flex items-center justify-center bg-white">
                     {children}
                 </div>
             );

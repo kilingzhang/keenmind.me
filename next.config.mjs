@@ -54,6 +54,10 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800',
           },
+          {
+            key: 'Expires',
+            value: new Date(Date.now() + 3600 * 1000).toUTCString(),
+          },
         ],
       },
       {
@@ -62,6 +66,10 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Expires',
+            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
           },
         ],
       },
@@ -72,6 +80,10 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=31536000',
           },
+          {
+            key: 'Expires',
+            value: new Date(Date.now() + 86400 * 1000).toUTCString(),
+          },
         ],
       },
       {
@@ -81,6 +93,10 @@ const nextConfig = {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
           },
+          {
+            key: 'Expires',
+            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
+          },
         ],
       },
       {
@@ -89,6 +105,10 @@ const nextConfig = {
           {
             key: 'Cache-Control',
             value: 'public, max-age=31536000, immutable',
+          },
+          {
+            key: 'Expires',
+            value: new Date(Date.now() + 31536000 * 1000).toUTCString(),
           },
         ],
       },
