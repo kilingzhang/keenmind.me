@@ -73,7 +73,7 @@ const Template = memo(function Template({ children }: { children: React.ReactNod
             space={{ size: 'middle' }}
             virtual={true}
         >
-            <div className="relative min-h-screen">
+            <div className="relative">
                 {/* 使用 AuroraBackground 组件替换旧的背景效果 */}
                 <div className="fixed inset-0 z-[-1]">
                     <AuroraBackground

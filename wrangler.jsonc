@@ -1,6 +1,7 @@
 // 引用 schema 文件
 // $schema: node_modules/wrangler/config-schema.json
 {
+    "$schema": "node_modules/wrangler/config-schema.json",
     "name": "keenmind",
     "compatibility_date": "2025-04-02",
     "compatibility_flags": [
