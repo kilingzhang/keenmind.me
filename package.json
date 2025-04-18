@@ -10,6 +10,7 @@
     "prisma:generate:no-engine": "bunx prisma generate --no-engine",
     "prisma:migrate": "bun run env -- prisma migrate dev",
     "prisma:push": "bun run env -- prisma db push",
+    "prisma:reset": "bun run env:pro -- prisma migrate reset",
     "prisma:pull": "bun run env -- prisma db pull",
     "prisma:studio": "bun run env -- prisma studio",
     "generate:base": "tsx scripts/generate-routes.ts && tsx scripts/generate-db-client.ts",

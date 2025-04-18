@@ -1,3 +1,5 @@
+-- 启用 citext 扩展支持邮箱地址的精确匹配
+CREATE EXTENSION IF NOT EXISTS citext;
 -- 启用 pgcrypto 扩展支持随机数生成
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -226,476 +228,345 @@ CREATE TRIGGER trg_update_auth_accounts_updated_at
     FOR EACH ROW
     EXECUTE FUNCTION update_timestamp();
 
--- 2. 创建 ability_points 表（没有外键依赖）
-CREATE EXTENSION IF NOT EXISTS citext;
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+-- 1. 领域表
+CREATE TABLE domains (
+  id BIGSERIAL PRIMARY KEY, -- 自增主键
+  slug CITEXT UNIQUE NOT NULL, -- 语义唯一标识
+  name_zh TEXT NOT NULL, -- 中文名称
+  name_en TEXT NOT NULL, -- 英文名称
+  description_zh TEXT, -- 中文描述
+  description_en TEXT, -- 英文描述
+  icon TEXT, -- 图标
+  sort_order INT DEFAULT 0, -- 排序权重
+  extra JSONB DEFAULT '{}'::jsonb, -- 扩展字段
+  deleted_at TIMESTAMPTZ, -- 软删除
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE domains IS '领域表，存储技术大方向/职业路径';
+COMMENT ON COLUMN domains.slug IS '领域唯一语义标识';
+COMMENT ON COLUMN domains.name_zh IS '领域中文名称';
+COMMENT ON COLUMN domains.name_en IS '领域英文名称';
+COMMENT ON COLUMN domains.description_zh IS '领域中文描述';
+COMMENT ON COLUMN domains.description_en IS '领域英文描述';
+COMMENT ON COLUMN domains.icon IS '领域图标';
+COMMENT ON COLUMN domains.sort_order IS '排序权重';
+COMMENT ON COLUMN domains.extra IS '扩展字段';
+COMMENT ON COLUMN domains.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN domains.created_at IS '创建时间';
+COMMENT ON COLUMN domains.updated_at IS '更新时间';
+CREATE UNIQUE INDEX idx_domains_slug ON domains(slug);
+CREATE INDEX idx_domains_active ON domains(id) WHERE deleted_at IS NULL;
 
-CREATE TABLE ability_points (
-	id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15), -- 自增主键
-	slug CITEXT UNIQUE NOT NULL, -- 语义唯一标识，用于URL和API调用，不区分大小写
-	domain_zh TEXT NOT NULL DEFAULT '', -- 所属领域中文名称，如 "Go语言"
-	domain_en TEXT NOT NULL DEFAULT '', -- 所属领域英文名称，如 "Go"
-	name_zh TEXT NOT NULL DEFAULT '', -- 能力点中文名称
-	name_en TEXT NOT NULL DEFAULT '', -- 能力点英文名称
-	description_zh TEXT DEFAULT NULL, -- 能力点中文说明
-	description_en TEXT DEFAULT NULL, -- 能力点英文说明
-	aliases JSONB NOT NULL DEFAULT '{}'::jsonb, -- 多语言别名，支持搜索和关联
-	tags JSONB NOT NULL DEFAULT '{}'::jsonb, -- 多语言标签，用于分类和筛选
-	search_text_tsv TSVECTOR, -- 全文搜索字段，自动构建
-	deleted_at TIMESTAMPTZ, -- 软删除时间戳
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 创建时间
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新时间
+-- 2. 主题表
+CREATE TABLE topics (
+  id BIGSERIAL PRIMARY KEY, -- 自增主键
+  domain_id BIGINT NOT NULL REFERENCES domains(id),
+  slug CITEXT UNIQUE NOT NULL,
+  name_zh TEXT NOT NULL,
+  name_en TEXT NOT NULL,
+  description_zh TEXT,
+  description_en TEXT,
+  sort_order INT DEFAULT 0,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE topics IS '主题表，存储具体技术栈/知识模块';
+COMMENT ON COLUMN topics.domain_id IS '所属领域ID';
+COMMENT ON COLUMN topics.slug IS '主题唯一语义标识';
+COMMENT ON COLUMN topics.name_zh IS '主题中文名称';
+COMMENT ON COLUMN topics.name_en IS '主题英文名称';
+COMMENT ON COLUMN topics.description_zh IS '主题中文描述';
+COMMENT ON COLUMN topics.description_en IS '主题英文描述';
+COMMENT ON COLUMN topics.sort_order IS '排序权重';
+COMMENT ON COLUMN topics.extra IS '扩展字段';
+COMMENT ON COLUMN topics.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN topics.created_at IS '创建时间';
+COMMENT ON COLUMN topics.updated_at IS '更新时间';
+CREATE UNIQUE INDEX idx_topics_slug ON topics(slug);
+CREATE INDEX idx_topics_domain_id ON topics(domain_id);
+CREATE INDEX idx_topics_active ON topics(id) WHERE deleted_at IS NULL;
+
+-- 3. 标签表
+CREATE TABLE tags (
+  id BIGSERIAL PRIMARY KEY, -- 自增主键
+  slug CITEXT UNIQUE NOT NULL,
+  name_zh TEXT NOT NULL,
+  name_en TEXT NOT NULL,
+  type VARCHAR(32), -- 能力/技术/属性/场景等
+  parent_id BIGINT REFERENCES tags(id),
+  description_zh TEXT,
+  description_en TEXT,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  search_text_tsv TSVECTOR
+);
+COMMENT ON TABLE tags IS '标签表，支持多语言、类型、层级';
+COMMENT ON COLUMN tags.slug IS '标签唯一语义标识';
+COMMENT ON COLUMN tags.name_zh IS '标签中文名称';
+COMMENT ON COLUMN tags.name_en IS '标签英文名称';
+COMMENT ON COLUMN tags.type IS '标签类型';
+COMMENT ON COLUMN tags.parent_id IS '父标签ID';
+COMMENT ON COLUMN tags.description_zh IS '标签中文描述';
+COMMENT ON COLUMN tags.description_en IS '标签英文描述';
+COMMENT ON COLUMN tags.extra IS '扩展字段';
+COMMENT ON COLUMN tags.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN tags.created_at IS '创建时间';
+COMMENT ON COLUMN tags.updated_at IS '更新时间';
+COMMENT ON COLUMN tags.search_text_tsv IS '全文搜索字段';
+CREATE UNIQUE INDEX idx_tags_slug ON tags(slug);
+CREATE INDEX idx_tags_type ON tags(type);
+CREATE INDEX idx_tags_parent_id ON tags(parent_id);
+CREATE INDEX idx_tags_active ON tags(id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_tags_search ON tags USING GIN (search_text_tsv);
+
+-- 4. 知识点表
+CREATE TABLE knowledge_points (
+  id BIGSERIAL PRIMARY KEY, -- 自增主键
+  slug CITEXT UNIQUE NOT NULL,
+  name_zh TEXT NOT NULL,
+  name_en TEXT NOT NULL,
+  definition_zh TEXT,
+  definition_en TEXT,
+  topic_id BIGINT REFERENCES topics(id),
+  aliases JSONB NOT NULL DEFAULT '{}'::jsonb,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  search_text_tsv TSVECTOR
+);
+COMMENT ON TABLE knowledge_points IS '知识点表，支持多语言、标签、软删除';
+COMMENT ON COLUMN knowledge_points.slug IS '知识点唯一语义标识';
+COMMENT ON COLUMN knowledge_points.name_zh IS '知识点中文名称';
+COMMENT ON COLUMN knowledge_points.name_en IS '知识点英文名称';
+COMMENT ON COLUMN knowledge_points.definition_zh IS '知识点中文定义';
+COMMENT ON COLUMN knowledge_points.definition_en IS '知识点英文定义';
+COMMENT ON COLUMN knowledge_points.topic_id IS '主归属主题ID';
+COMMENT ON COLUMN knowledge_points.aliases IS '多语言别名';
+COMMENT ON COLUMN knowledge_points.extra IS '扩展字段';
+COMMENT ON COLUMN knowledge_points.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN knowledge_points.created_at IS '创建时间';
+COMMENT ON COLUMN knowledge_points.updated_at IS '更新时间';
+COMMENT ON COLUMN knowledge_points.search_text_tsv IS '全文搜索字段';
+CREATE UNIQUE INDEX idx_knowledge_points_slug ON knowledge_points(slug);
+CREATE INDEX idx_knowledge_points_topic_id ON knowledge_points(topic_id);
+CREATE INDEX idx_knowledge_points_active ON knowledge_points(id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_knowledge_points_search ON knowledge_points USING GIN (search_text_tsv);
+
+-- 知识点-标签多对多
+CREATE TABLE knowledge_point_tags (
+  knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points(id) ON DELETE CASCADE,
+  tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (knowledge_point_id, tag_id)
 );
 
--- 为 JSONB 字段创建索引
-CREATE INDEX idx_ability_points_tags ON ability_points USING GIN (tags);
+-- 5. 题目表
+CREATE TABLE questions (
+  id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15),
+  type VARCHAR(20) NOT NULL DEFAULT 'open-ended', -- 题型
+  language VARCHAR(20), -- 编程语言
+  difficulty VARCHAR(10) NOT NULL DEFAULT 'medium',
+  source VARCHAR(50) DEFAULT 'official',
+  primary_knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points(id),
+  title_zh TEXT NOT NULL,
+  title_en TEXT NOT NULL,
+  description_zh TEXT,
+  description_en TEXT,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  search_text_tsv TSVECTOR
+);
+COMMENT ON TABLE questions IS '题目表，支持多语言、标签、软删除';
+COMMENT ON COLUMN questions.type IS '题目类型';
+COMMENT ON COLUMN questions.language IS '编程语言';
+COMMENT ON COLUMN questions.difficulty IS '难度等级';
+COMMENT ON COLUMN questions.source IS '题目来源';
+COMMENT ON COLUMN questions.primary_knowledge_point_id IS '主知识点ID';
+COMMENT ON COLUMN questions.title_zh IS '题目中文标题';
+COMMENT ON COLUMN questions.title_en IS '题目英文标题';
+COMMENT ON COLUMN questions.description_zh IS '题目中文描述';
+COMMENT ON COLUMN questions.description_en IS '题目英文描述';
+COMMENT ON COLUMN questions.extra IS '扩展字段';
+COMMENT ON COLUMN questions.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN questions.created_at IS '创建时间';
+COMMENT ON COLUMN questions.updated_at IS '更新时间';
+COMMENT ON COLUMN questions.search_text_tsv IS '全文搜索字段';
+CREATE INDEX idx_questions_type ON questions(type);
+CREATE INDEX idx_questions_language ON questions(language);
+CREATE INDEX idx_questions_difficulty ON questions(difficulty);
+CREATE INDEX idx_questions_primary_knowledge_point_id ON questions(primary_knowledge_point_id);
+CREATE INDEX idx_questions_active ON questions(id) WHERE deleted_at IS NULL;
+CREATE INDEX idx_questions_search ON questions USING GIN (search_text_tsv);
 
-CREATE INDEX idx_ability_points_aliases ON ability_points USING GIN (aliases);
+-- 题目-标签多对多
+CREATE TABLE question_tags (
+  question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (question_id, tag_id)
+);
 
-CREATE INDEX idx_ability_points_active ON ability_points (id)
-WHERE
-	deleted_at IS NULL;
+-- 题目-辅助知识点多对多
+CREATE TABLE question_aux_knowledge_points (
+  question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points(id) ON DELETE CASCADE,
+  PRIMARY KEY (question_id, knowledge_point_id)
+);
 
-COMMENT ON TABLE ability_points IS '能力点表，存储技术能力点的多语言信息，支持全文搜索和软删除';
+-- 6. 标准答案表
+CREATE TABLE standard_answers (
+  id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15),
+  question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  user_id BIGINT REFERENCES users(id),
+  is_system BOOLEAN NOT NULL DEFAULT FALSE,
+  source VARCHAR(20) NOT NULL DEFAULT 'official',
+  is_featured BOOLEAN DEFAULT FALSE,
+  answer_type VARCHAR(20) DEFAULT 'explanation',
+  content_zh TEXT NOT NULL,
+  content_en TEXT NOT NULL,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE standard_answers IS '标准答案表，支持多语言、软删除';
+COMMENT ON COLUMN standard_answers.question_id IS '所属题目ID';
+COMMENT ON COLUMN standard_answers.user_id IS '创建答案的用户ID';
+COMMENT ON COLUMN standard_answers.is_system IS '是否为系统生成';
+COMMENT ON COLUMN standard_answers.source IS '答案来源';
+COMMENT ON COLUMN standard_answers.is_featured IS '是否为精选答案';
+COMMENT ON COLUMN standard_answers.answer_type IS '答案类型';
+COMMENT ON COLUMN standard_answers.content_zh IS '中文答案内容';
+COMMENT ON COLUMN standard_answers.content_en IS '英文答案内容';
+COMMENT ON COLUMN standard_answers.extra IS '扩展字段';
+COMMENT ON COLUMN standard_answers.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN standard_answers.created_at IS '创建时间';
+COMMENT ON COLUMN standard_answers.updated_at IS '更新时间';
+CREATE INDEX idx_standard_answers_question_id ON standard_answers(question_id);
+CREATE INDEX idx_standard_answers_user_id ON standard_answers(user_id);
+CREATE INDEX idx_standard_answers_is_featured ON standard_answers(is_featured);
+CREATE INDEX idx_standard_answers_answer_type ON standard_answers(answer_type);
+CREATE INDEX idx_standard_answers_active ON standard_answers(id) WHERE deleted_at IS NULL;
 
-COMMENT ON COLUMN ability_points.id IS '能力点唯一标识，使用generate_numeric_id(15)生成15位随机数字ID';
+-- 答案-知识点多对多
+CREATE TABLE standard_answer_knowledge_points (
+  standard_answer_id BIGINT NOT NULL REFERENCES standard_answers(id) ON DELETE CASCADE,
+  knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points(id) ON DELETE CASCADE,
+  PRIMARY KEY (standard_answer_id, knowledge_point_id)
+);
 
-COMMENT ON COLUMN ability_points.slug IS '语义化唯一标识，用于URL和API调用，不区分大小写';
+-- 标准答案-标签多对多
+CREATE TABLE standard_answer_tags (
+  standard_answer_id BIGINT NOT NULL REFERENCES standard_answers(id) ON DELETE CASCADE,
+  tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (standard_answer_id, tag_id)
+);
+COMMENT ON TABLE standard_answer_tags IS '标准答案与标签的多对多关系表';
+COMMENT ON COLUMN standard_answer_tags.standard_answer_id IS '标准答案ID，外键关联standard_answers';
+COMMENT ON COLUMN standard_answer_tags.tag_id IS '标签ID，外键关联tags';
 
-COMMENT ON COLUMN ability_points.domain_zh IS '能力点所属领域的中文名称，如"Go语言"、"数据库"等';
+-- 7. 用户作答表
+CREATE TABLE user_answers (
+  id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15),
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  question_id BIGINT NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
+  input_language VARCHAR(10) NOT NULL DEFAULT 'zh',
+  audio_url TEXT,
+  transcribed_text TEXT,
+  answer_text TEXT NOT NULL,
+  quality_score DECIMAL(3, 2) DEFAULT 0.00,
+  score_detail JSONB,
+  extra JSONB DEFAULT '{}'::jsonb,
+  deleted_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+COMMENT ON TABLE user_answers IS '用户作答表，支持语音、评分、软删除';
+COMMENT ON COLUMN user_answers.user_id IS '作答用户ID';
+COMMENT ON COLUMN user_answers.question_id IS '作答题目ID';
+COMMENT ON COLUMN user_answers.input_language IS '作答语言';
+COMMENT ON COLUMN user_answers.audio_url IS '语音文件URL';
+COMMENT ON COLUMN user_answers.transcribed_text IS '语音转录文本';
+COMMENT ON COLUMN user_answers.answer_text IS '最终答案文本';
+COMMENT ON COLUMN user_answers.quality_score IS 'AI质量评分';
+COMMENT ON COLUMN user_answers.score_detail IS '评分详情';
+COMMENT ON COLUMN user_answers.extra IS '扩展字段';
+COMMENT ON COLUMN user_answers.deleted_at IS '软删除时间戳';
+COMMENT ON COLUMN user_answers.created_at IS '创建时间';
+COMMENT ON COLUMN user_answers.updated_at IS '更新时间';
+CREATE INDEX idx_user_answers_user_id ON user_answers(user_id);
+CREATE INDEX idx_user_answers_question_id ON user_answers(question_id);
+CREATE INDEX idx_user_answers_quality_score ON user_answers(quality_score);
+CREATE INDEX idx_user_answers_active ON user_answers(id) WHERE deleted_at IS NULL;
 
-COMMENT ON COLUMN ability_points.domain_en IS '能力点所属领域的英文名称，如"Go"、"Database"等';
+-- 用户作答-标签多对多
+CREATE TABLE user_answer_tags (
+  user_answer_id BIGINT NOT NULL REFERENCES user_answers(id) ON DELETE CASCADE,
+  tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  PRIMARY KEY (user_answer_id, tag_id)
+);
+COMMENT ON TABLE user_answer_tags IS '用户作答与标签的多对多关系表';
+COMMENT ON COLUMN user_answer_tags.user_answer_id IS '用户作答ID，外键关联user_answers';
+COMMENT ON COLUMN user_answer_tags.tag_id IS '标签ID，外键关联tags';
 
-COMMENT ON COLUMN ability_points.name_zh IS '能力点的中文名称，用于中文界面显示';
-
-COMMENT ON COLUMN ability_points.name_en IS '能力点的英文名称，用于英文界面显示';
-
-COMMENT ON COLUMN ability_points.description_zh IS '能力点的中文详细说明，描述该能力点的具体内容和要求';
-
-COMMENT ON COLUMN ability_points.description_en IS '能力点的英文详细说明，描述该能力点的具体内容和要求';
-
-COMMENT ON COLUMN ability_points.aliases IS '多语言别名结构，用于支持搜索和关联，格式：{"zh": ["别名1", "别名2"], "en": ["alias1", "alias2"]}';
-
-COMMENT ON COLUMN ability_points.tags IS '多语言标签结构，用于分类和筛选，格式：{"zh": ["标签1", "标签2"], "en": ["tag1", "tag2"]}';
-
-COMMENT ON COLUMN ability_points.search_text_tsv IS '全文搜索字段，由触发器自动构建，包含所有语言内容';
-
-COMMENT ON COLUMN ability_points.deleted_at IS '软删除时间戳，NULL表示未删除';
-
-COMMENT ON COLUMN ability_points.created_at IS '记录创建时间，自动设置为当前时间';
-
-COMMENT ON COLUMN ability_points.updated_at IS '记录最后更新时间，由触发器自动更新';
-
--- 自动构建全文搜索字段
-CREATE
-OR REPLACE FUNCTION update_ability_points_search_text_tsv () RETURNS trigger AS $$
+-- 8. search_text_tsv 触发器
+CREATE OR REPLACE FUNCTION update_tags_search_text_tsv() RETURNS trigger AS $$
 DECLARE
     all_text TEXT := '';
 BEGIN
-    all_text := coalesce(NEW.domain_zh, '') || ' ' || coalesce(NEW.domain_en, '') || ' ' || 
-                coalesce(NEW.name_zh, '') || ' ' || coalesce(NEW.name_en, '') || ' ' ||
+    all_text := coalesce(NEW.name_zh, '') || ' ' || coalesce(NEW.name_en, '') || ' ' ||
                 coalesce(NEW.description_zh, '') || ' ' || coalesce(NEW.description_en, '');
-
-    all_text := all_text || ' ' ||
-      array_to_string(ARRAY(SELECT jsonb_array_elements_text(value) FROM jsonb_each(NEW.aliases)), ' ') || ' ' ||
-      array_to_string(ARRAY(SELECT jsonb_array_elements_text(value) FROM jsonb_each(NEW.tags)), ' ');
-
     NEW.search_text_tsv := to_tsvector('simple', all_text);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_update_tags_search BEFORE INSERT OR UPDATE ON tags FOR EACH ROW EXECUTE FUNCTION update_tags_search_text_tsv();
 
-CREATE TRIGGER trg_update_ability_points_search BEFORE INSERT
-OR
-UPDATE ON ability_points FOR EACH ROW
-EXECUTE FUNCTION update_ability_points_search_text_tsv ();
-
-CREATE INDEX idx_ability_points_search ON ability_points USING GIN (search_text_tsv);
-
--- 添加自动更新 updated_at 的触发器
-CREATE
-OR REPLACE FUNCTION update_ability_points_updated_at () RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_update_ability_points_updated_at BEFORE
-UPDATE ON ability_points FOR EACH ROW
-EXECUTE FUNCTION update_ability_points_updated_at ();
-
--- 3. 创建 knowledge_points 表（依赖 ability_points）
-CREATE TABLE knowledge_points (
-	id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15), -- 自增主键
-	slug CITEXT UNIQUE NOT NULL, -- 语义唯一标识，用于URL和API调用，不区分大小写
-	name_zh TEXT NOT NULL DEFAULT '', -- 中文名称，用于中文界面显示
-	name_en TEXT NOT NULL DEFAULT '', -- 英文名称，用于英文界面显示
-	definition_zh TEXT DEFAULT NULL, -- 中文定义，详细解释该知识点
-	definition_en TEXT DEFAULT NULL, -- 英文定义，详细解释该知识点
-	aliases JSONB NOT NULL DEFAULT '{}'::jsonb, -- 多语言别名，支持搜索和关联
-	tags JSONB NOT NULL DEFAULT '{}'::jsonb, -- 多语言标签，用于分类和筛选
-	ability_point_ids JSONB NOT NULL DEFAULT '[]'::jsonb, -- 关联的能力点ID数组
-	search_text_tsv TSVECTOR, -- 全文搜索字段，自动构建
-	deleted_at TIMESTAMPTZ, -- 软删除时间戳
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 创建时间
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新时间
-);
-
--- 为 JSONB 字段创建索引
-CREATE INDEX idx_knowledge_points_tags ON knowledge_points USING GIN (tags);
-
-CREATE INDEX idx_knowledge_points_aliases ON knowledge_points USING GIN (aliases);
-
-CREATE INDEX idx_knowledge_points_active ON knowledge_points (id)
-WHERE
-	deleted_at IS NULL;
-
-COMMENT ON TABLE knowledge_points IS '知识点表，存储技术知识点的多语言信息，支持全文搜索和软删除';
-
-COMMENT ON COLUMN knowledge_points.id IS '知识点唯一标识，使用generate_numeric_id(15)生成15位随机数字ID';
-
-COMMENT ON COLUMN knowledge_points.slug IS '语义化唯一标识，用于URL和API调用，不区分大小写';
-
-COMMENT ON COLUMN knowledge_points.name_zh IS '知识点的中文名称，用于中文界面显示';
-
-COMMENT ON COLUMN knowledge_points.name_en IS '知识点的英文名称，用于英文界面显示';
-
-COMMENT ON COLUMN knowledge_points.definition_zh IS '知识点的中文定义，详细解释该知识点的含义和用途';
-
-COMMENT ON COLUMN knowledge_points.definition_en IS '知识点的英文定义，详细解释该知识点的含义和用途';
-
-COMMENT ON COLUMN knowledge_points.aliases IS '多语言别名结构，用于支持搜索和关联，格式：{"zh": ["别名1", "别名2"], "en": ["alias1", "alias2"]}';
-
-COMMENT ON COLUMN knowledge_points.tags IS '多语言标签结构，用于分类和筛选，格式：{"zh": ["标签1", "标签2"], "en": ["tag1", "tag2"]}';
-
-COMMENT ON COLUMN knowledge_points.ability_point_ids IS '关联的能力点ID数组，表示该知识点属于哪些能力点';
-
-COMMENT ON COLUMN knowledge_points.search_text_tsv IS '全文搜索字段，由触发器自动构建，包含所有语言内容';
-
-COMMENT ON COLUMN knowledge_points.deleted_at IS '软删除时间戳，NULL表示未删除';
-
-COMMENT ON COLUMN knowledge_points.created_at IS '记录创建时间，自动设置为当前时间';
-
-COMMENT ON COLUMN knowledge_points.updated_at IS '记录最后更新时间，由触发器自动更新';
-
--- 自动构建全文搜索字段
-CREATE
-OR REPLACE FUNCTION update_knowledge_points_search_text_tsv () RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION update_knowledge_points_search_text_tsv() RETURNS trigger AS $$
 DECLARE
     all_text TEXT := '';
 BEGIN
     all_text := coalesce(NEW.name_zh, '') || ' ' || coalesce(NEW.name_en, '') || ' ' ||
                 coalesce(NEW.definition_zh, '') || ' ' || coalesce(NEW.definition_en, '');
-
-    all_text := all_text || ' ' ||
-      array_to_string(ARRAY(SELECT jsonb_array_elements_text(value) FROM jsonb_each(NEW.aliases)), ' ') || ' ' ||
-      array_to_string(ARRAY(SELECT jsonb_array_elements_text(value) FROM jsonb_each(NEW.tags)), ' ');
-
     NEW.search_text_tsv := to_tsvector('simple', all_text);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_update_knowledge_points_search BEFORE INSERT OR UPDATE ON knowledge_points FOR EACH ROW EXECUTE FUNCTION update_knowledge_points_search_text_tsv();
 
-CREATE TRIGGER trg_update_knowledge_points_search BEFORE INSERT
-OR
-UPDATE ON knowledge_points FOR EACH ROW
-EXECUTE FUNCTION update_knowledge_points_search_text_tsv ();
-
-CREATE INDEX idx_knowledge_points_search ON knowledge_points USING GIN (search_text_tsv);
-
--- 添加自动更新 updated_at 的触发器
-CREATE
-OR REPLACE FUNCTION update_knowledge_points_updated_at () RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_update_knowledge_points_updated_at BEFORE
-UPDATE ON knowledge_points FOR EACH ROW
-EXECUTE FUNCTION update_knowledge_points_updated_at ();
-
--- 4. 创建 question_variants 表（依赖 knowledge_points）
-CREATE TABLE question_variants (
-	id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15), -- 自增主键
-	type VARCHAR(20) NOT NULL DEFAULT 'open-ended', -- 题目类型：开放题、编程题、选择题
-	language VARCHAR(20) DEFAULT NULL, -- 涉及编程语言，如 "Go"、"Python"
-	difficulty VARCHAR(10) NOT NULL DEFAULT 'medium', -- 难度等级：easy、medium、hard
-	source VARCHAR(50) DEFAULT 'official', -- 题目来源：official、user、ai
-	primary_knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points (id), -- 主知识点ID
-	auxiliary_knowledge_points JSONB NOT NULL DEFAULT '[]'::jsonb, -- 辅助知识点数组
-	tags JSONB NOT NULL DEFAULT '{}'::jsonb, -- 多语言标签
-	title_zh TEXT NOT NULL DEFAULT '', -- 中文题目标题
-	title_en TEXT NOT NULL DEFAULT '', -- 英文题目标题
-	description_zh TEXT DEFAULT NULL, -- 中文题目描述
-	description_en TEXT DEFAULT NULL, -- 英文题目描述
-	search_text_tsv TSVECTOR, -- 全文搜索字段
-	deleted_at TIMESTAMPTZ, -- 软删除时间戳
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 创建时间
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新时间
-);
-
--- 创建常用查询字段的索引
-CREATE INDEX idx_question_variants_type ON question_variants (type);
-
-CREATE INDEX idx_question_variants_language ON question_variants (language);
-
-CREATE INDEX idx_question_variants_difficulty ON question_variants (difficulty);
-
-CREATE INDEX idx_question_variants_tags ON question_variants USING GIN (tags);
-
-CREATE INDEX idx_question_variants_active ON question_variants (id)
-WHERE
-	deleted_at IS NULL;
-
-COMMENT ON TABLE question_variants IS '题目表，存储各类技术题目的多语言信息，支持全文搜索和软删除';
-
-COMMENT ON COLUMN question_variants.id IS '题目唯一标识，使用generate_numeric_id(15)生成15位随机数字ID';
-
-COMMENT ON COLUMN question_variants.type IS '题目类型：open-ended（开放题）、code（编程题）、choice（选择题）';
-
-COMMENT ON COLUMN question_variants.language IS '涉及编程语言，如"Go"、"Python"等，非编程题可为NULL';
-
-COMMENT ON COLUMN question_variants.difficulty IS '题目难度等级：easy（简单）、medium（中等）、hard（困难）';
-
-COMMENT ON COLUMN question_variants.source IS '题目来源：official（官方）、user（用户上传）、ai（AI生成）';
-
-COMMENT ON COLUMN question_variants.primary_knowledge_point_id IS '主知识点ID，题目主要考察的知识点，外键关联knowledge_points表的15位随机数字ID';
-
-COMMENT ON COLUMN question_variants.auxiliary_knowledge_points IS '辅助知识点ID数组，格式：[2,3,4]';
-
-COMMENT ON COLUMN question_variants.tags IS '多语言标签结构，格式：{"zh": ["标签1", "标签2"], "en": ["tag1", "tag2"]}';
-
-COMMENT ON COLUMN question_variants.title_zh IS '题目的中文标题，用于中文界面显示';
-
-COMMENT ON COLUMN question_variants.title_en IS '题目的英文标题，用于英文界面显示';
-
-COMMENT ON COLUMN question_variants.description_zh IS '题目的中文详细描述，包含题目要求和说明';
-
-COMMENT ON COLUMN question_variants.description_en IS '题目的英文详细描述，包含题目要求和说明';
-
-COMMENT ON COLUMN question_variants.search_text_tsv IS '全文搜索字段，由触发器自动构建，包含所有语言内容';
-
-COMMENT ON COLUMN question_variants.deleted_at IS '软删除时间戳，NULL表示未删除';
-
-COMMENT ON COLUMN question_variants.created_at IS '记录创建时间，自动设置为当前时间';
-
-COMMENT ON COLUMN question_variants.updated_at IS '记录最后更新时间，由触发器自动更新';
-
--- 自动更新全文搜索字段
-CREATE
-OR REPLACE FUNCTION update_question_variants_search_text_tsv () RETURNS trigger AS $$
+CREATE OR REPLACE FUNCTION update_questions_search_text_tsv() RETURNS trigger AS $$
 DECLARE
     all_text TEXT := '';
 BEGIN
     all_text := coalesce(NEW.title_zh, '') || ' ' || coalesce(NEW.title_en, '') || ' ' ||
                 coalesce(NEW.description_zh, '') || ' ' || coalesce(NEW.description_en, '');
-
-    all_text := all_text || ' ' ||
-        array_to_string(ARRAY(
-            SELECT jsonb_array_elements_text(value) FROM jsonb_each(NEW.tags)
-        ), ' ');
-
     NEW.search_text_tsv := to_tsvector('simple', all_text);
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+CREATE TRIGGER trg_update_questions_search BEFORE INSERT OR UPDATE ON questions FOR EACH ROW EXECUTE FUNCTION update_questions_search_text_tsv();
 
-CREATE TRIGGER trg_update_question_variants_search BEFORE INSERT
-OR
-UPDATE ON question_variants FOR EACH ROW
-EXECUTE FUNCTION update_question_variants_search_text_tsv ();
-
-CREATE INDEX idx_question_variants_search ON question_variants USING GIN (search_text_tsv);
-
--- 添加自动更新 updated_at 的触发器
-CREATE
-OR REPLACE FUNCTION update_question_variants_updated_at () RETURNS TRIGGER AS $$
+-- 9. updated_at 触发器
+CREATE OR REPLACE FUNCTION update_updated_at() RETURNS TRIGGER AS $$
 BEGIN
     NEW.updated_at = now();
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_update_question_variants_updated_at BEFORE
-UPDATE ON question_variants FOR EACH ROW
-EXECUTE FUNCTION update_question_variants_updated_at ();
-
--- 5. 创建 standard_answers 表（依赖 users 和 question_variants）
-CREATE TABLE standard_answers (
-	id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15), -- 自增主键
-	question_id BIGINT NOT NULL REFERENCES question_variants (id) ON DELETE RESTRICT, -- 所属题目ID
-	user_id BIGINT REFERENCES users (id) ON DELETE RESTRICT, -- 用户ID，系统生成则为NULL
-	is_system BOOLEAN NOT NULL DEFAULT FALSE, -- 是否为系统生成的答案
-	source VARCHAR(20) NOT NULL DEFAULT 'official', -- 答案来源
-	is_featured BOOLEAN DEFAULT FALSE, -- 是否为精选答案
-	used_as_primary BIGINT DEFAULT 0, -- 被采纳为主答案的次数
-	upvotes BIGINT DEFAULT 0, -- 点赞数量
-	bookmark BIGINT DEFAULT 0, -- 收藏数量
-	answer_type VARCHAR(20) DEFAULT 'explanation', -- 答案类型
-	knowledge_point_ids JSONB NOT NULL DEFAULT '[]'::jsonb, -- 关联的知识点ID数组
-	content_zh TEXT NOT NULL DEFAULT '', -- 中文答案内容
-	content_en TEXT NOT NULL DEFAULT '', -- 英文答案内容
-	search_text_tsv TSVECTOR, -- 全文搜索字段
-	deleted_at TIMESTAMPTZ, -- 软删除时间戳
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(), -- 创建时间
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新时间
-);
-
--- 创建常用查询字段的索引
-CREATE INDEX idx_standard_answers_question_id ON standard_answers (question_id);
-
-CREATE INDEX idx_standard_answers_user_id ON standard_answers (user_id);
-
-CREATE INDEX idx_standard_answers_is_featured ON standard_answers (is_featured);
-
-CREATE INDEX idx_standard_answers_answer_type ON standard_answers (answer_type);
-
-CREATE INDEX idx_standard_answers_knowledge_points ON standard_answers USING GIN (knowledge_point_ids);
-
-CREATE INDEX idx_standard_answers_active ON standard_answers (id)
-WHERE
-	deleted_at IS NULL;
-
-COMMENT ON TABLE standard_answers IS '标准答案表，存储题目的标准答案，支持多语言、点赞收藏统计及全文搜索';
-
-COMMENT ON COLUMN standard_answers.id IS '答案唯一标识，使用generate_numeric_id(15)生成15位随机数字ID';
-
-COMMENT ON COLUMN standard_answers.question_id IS '所属题目的ID，外键关联question_variants表的15位随机数字ID';
-
-COMMENT ON COLUMN standard_answers.user_id IS '创建答案的用户ID，系统生成的答案为NULL，外键关联users表的12位随机数字ID';
-
-COMMENT ON COLUMN standard_answers.is_system IS '是否为系统生成的答案，TRUE表示系统生成，FALSE表示用户创建';
-
-COMMENT ON COLUMN standard_answers.source IS '答案来源：official（官方）、user（用户）、ai（AI生成）';
-
-COMMENT ON COLUMN standard_answers.is_featured IS '是否为精选答案，TRUE表示精选，会在前端优先展示';
-
-COMMENT ON COLUMN standard_answers.used_as_primary IS '被用户采纳为主答案的次数，用于排序和推荐';
-
-COMMENT ON COLUMN standard_answers.upvotes IS '答案获得的点赞数量';
-
-COMMENT ON COLUMN standard_answers.bookmark IS '答案被收藏的次数';
-
-COMMENT ON COLUMN standard_answers.answer_type IS '答案类型：explanation（解释）、code（代码）、example（举例）';
-
-COMMENT ON COLUMN standard_answers.knowledge_point_ids IS '答案关联的知识点ID数组，格式：[1,2,3]';
-
-COMMENT ON COLUMN standard_answers.content_zh IS '答案的中文内容';
-
-COMMENT ON COLUMN standard_answers.content_en IS '答案的英文内容';
-
-COMMENT ON COLUMN standard_answers.search_text_tsv IS '全文搜索字段，由触发器自动构建，包含所有语言内容';
-
-COMMENT ON COLUMN standard_answers.deleted_at IS '软删除时间戳，NULL表示未删除';
-
-COMMENT ON COLUMN standard_answers.created_at IS '记录创建时间，自动设置为当前时间';
-
-COMMENT ON COLUMN standard_answers.updated_at IS '记录最后更新时间，由触发器自动更新';
-
--- 自动构建全文搜索字段
-CREATE
-OR REPLACE FUNCTION update_standard_answers_search_text_tsv () RETURNS trigger AS $$
-DECLARE
-    all_text TEXT := '';
-BEGIN
-    all_text := coalesce(NEW.content_zh, '') || ' ' || coalesce(NEW.content_en, '') || ' ' ||
-        array_to_string(ARRAY(
-            SELECT jsonb_array_elements_text(NEW.knowledge_point_ids::jsonb)
-        ), ' ');
-
-    NEW.search_text_tsv := to_tsvector('simple', all_text);
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_update_standard_answers_search BEFORE INSERT
-OR
-UPDATE ON standard_answers FOR EACH ROW
-EXECUTE FUNCTION update_standard_answers_search_text_tsv ();
-
-CREATE INDEX idx_standard_answers_search ON standard_answers USING GIN (search_text_tsv);
-
--- 添加自动更新 updated_at 的触发器
-CREATE
-OR REPLACE FUNCTION update_standard_answers_updated_at () RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_update_standard_answers_updated_at BEFORE
-UPDATE ON standard_answers FOR EACH ROW
-EXECUTE FUNCTION update_standard_answers_updated_at ();
-
--- 6. 创建 user_answers 表（依赖 users 和 question_variants）
-CREATE TABLE user_answers (
-	id BIGINT PRIMARY KEY DEFAULT generate_numeric_id(15), -- 自增主键
-	user_id BIGINT NOT NULL REFERENCES users (id) ON DELETE RESTRICT, -- 用户ID
-	question_id BIGINT NOT NULL REFERENCES question_variants (id) ON DELETE RESTRICT, -- 题目ID
-	input_language VARCHAR(10) NOT NULL DEFAULT 'zh', -- 输入语言
-	audio_url TEXT DEFAULT NULL, -- 音频文件URL
-	transcribed_text TEXT DEFAULT NULL, -- 转录文本
-	answer_text TEXT NOT NULL DEFAULT '', -- 最终答案文本
-	quality_score DECIMAL(3, 2) DEFAULT 0.00, -- 质量评分
-	score_detail JSONB DEFAULT NULL, -- 评分详情
-	created_at TIMESTAMPTZ DEFAULT now(), -- 创建时间
-	deleted_at TIMESTAMPTZ, -- 软删除时间戳
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT now() -- 更新时间
-);
-
--- 创建常用查询字段的索引
-CREATE INDEX idx_user_answers_user_id ON user_answers (user_id);
-
-CREATE INDEX idx_user_answers_question_id ON user_answers (question_id);
-
-CREATE INDEX idx_user_answers_quality_score ON user_answers (quality_score);
-
-CREATE INDEX idx_user_answers_active ON user_answers (id)
-WHERE
-	deleted_at IS NULL;
-
-COMMENT ON TABLE user_answers IS '用户作答记录表，支持语音输入、自动评分，保留原始语音与转录文本';
-
-COMMENT ON COLUMN user_answers.id IS '作答记录唯一标识，使用generate_numeric_id(15)生成15位随机数字ID';
-
-COMMENT ON COLUMN user_answers.user_id IS '作答用户的ID，外键关联users表的12位随机数字ID';
-
-COMMENT ON COLUMN user_answers.question_id IS '作答题目的ID，外键关联question_variants表的15位随机数字ID';
-
-COMMENT ON COLUMN user_answers.input_language IS '用户作答使用的语言，如"zh"（中文）、"en"（英文）';
-
-COMMENT ON COLUMN user_answers.audio_url IS '语音输入的音频文件URL，非语音输入为NULL';
-
-COMMENT ON COLUMN user_answers.transcribed_text IS '语音输入转录后的文本内容，非语音输入为NULL';
-
-COMMENT ON COLUMN user_answers.answer_text IS '用户最终提交的答案文本，可能是手动编辑后的内容';
-
-COMMENT ON COLUMN user_answers.quality_score IS 'AI分析的质量评分，范围0-1.5，保留两位小数';
-
-COMMENT ON COLUMN user_answers.score_detail IS '分项评分详情，JSON格式，如{"coverage":0.9, "clarity":0.8}';
-
-COMMENT ON COLUMN user_answers.created_at IS '作答提交时间，自动设置为当前时间';
-
-COMMENT ON COLUMN user_answers.deleted_at IS '软删除时间戳，NULL表示未删除';
-
-COMMENT ON COLUMN user_answers.updated_at IS '记录最后更新时间，由触发器自动更新';
-
--- 添加自动更新 updated_at 的触发器
-CREATE
-OR REPLACE FUNCTION update_user_answers_updated_at () RETURNS TRIGGER AS $$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_update_user_answers_updated_at BEFORE
-UPDATE ON user_answers FOR EACH ROW
-EXECUTE FUNCTION update_user_answers_updated_at ();
+CREATE TRIGGER trg_update_domains_updated_at BEFORE UPDATE ON domains FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_topics_updated_at BEFORE UPDATE ON topics FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_tags_updated_at BEFORE UPDATE ON tags FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_knowledge_points_updated_at BEFORE UPDATE ON knowledge_points FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_questions_updated_at BEFORE UPDATE ON questions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_standard_answers_updated_at BEFORE UPDATE ON standard_answers FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+CREATE TRIGGER trg_update_user_answers_updated_at BEFORE UPDATE ON user_answers FOR EACH ROW EXECUTE FUNCTION update_updated_at();
 
 -- 添加ID生成函数的补充注释
 COMMENT ON FUNCTION generate_numeric_id(integer) IS '生成指定长度的随机数字ID，用于各表主键生成，参数为ID长度，返回对应长度的随机数字';
