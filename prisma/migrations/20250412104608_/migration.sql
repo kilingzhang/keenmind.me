@@ -261,7 +261,6 @@ CREATE INDEX idx_domains_active ON domains(id) WHERE deleted_at IS NULL;
 -- 2. 主题表
 CREATE TABLE topics (
   id BIGSERIAL PRIMARY KEY, -- 自增主键
-  domain_id BIGINT NOT NULL REFERENCES domains(id),
   slug CITEXT UNIQUE NOT NULL,
   name_zh TEXT NOT NULL,
   name_en TEXT NOT NULL,
@@ -274,7 +273,6 @@ CREATE TABLE topics (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 COMMENT ON TABLE topics IS '主题表，存储具体技术栈/知识模块';
-COMMENT ON COLUMN topics.domain_id IS '所属领域ID';
 COMMENT ON COLUMN topics.slug IS '主题唯一语义标识';
 COMMENT ON COLUMN topics.name_zh IS '主题中文名称';
 COMMENT ON COLUMN topics.name_en IS '主题英文名称';
@@ -286,8 +284,19 @@ COMMENT ON COLUMN topics.deleted_at IS '软删除时间戳';
 COMMENT ON COLUMN topics.created_at IS '创建时间';
 COMMENT ON COLUMN topics.updated_at IS '更新时间';
 CREATE UNIQUE INDEX idx_topics_slug ON topics(slug);
-CREATE INDEX idx_topics_domain_id ON topics(domain_id);
 CREATE INDEX idx_topics_active ON topics(id) WHERE deleted_at IS NULL;
+
+
+CREATE TABLE domain_topics (
+  domain_id BIGINT NOT NULL REFERENCES domains(id) ON DELETE CASCADE,
+  topic_id BIGINT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+  PRIMARY KEY (domain_id, topic_id)
+);
+COMMENT ON TABLE domain_topics IS '领域与主题的多对多关系表';
+COMMENT ON COLUMN domain_topics.domain_id IS '领域ID，外键关联domains';
+COMMENT ON COLUMN domain_topics.topic_id IS '主题ID，外键关联topics';
+CREATE INDEX idx_domain_topics_domain_id ON domain_topics(domain_id);
+CREATE INDEX idx_domain_topics_topic_id ON domain_topics(topic_id);
 
 -- 3. 标签表
 CREATE TABLE tags (
@@ -332,7 +341,6 @@ CREATE TABLE knowledge_points (
   name_en TEXT NOT NULL,
   definition_zh TEXT,
   definition_en TEXT,
-  topic_id BIGINT REFERENCES topics(id),
   aliases JSONB NOT NULL DEFAULT '{}'::jsonb,
   extra JSONB DEFAULT '{}'::jsonb,
   deleted_at TIMESTAMPTZ,
@@ -346,7 +354,6 @@ COMMENT ON COLUMN knowledge_points.name_zh IS '知识点中文名称';
 COMMENT ON COLUMN knowledge_points.name_en IS '知识点英文名称';
 COMMENT ON COLUMN knowledge_points.definition_zh IS '知识点中文定义';
 COMMENT ON COLUMN knowledge_points.definition_en IS '知识点英文定义';
-COMMENT ON COLUMN knowledge_points.topic_id IS '主归属主题ID';
 COMMENT ON COLUMN knowledge_points.aliases IS '多语言别名';
 COMMENT ON COLUMN knowledge_points.extra IS '扩展字段';
 COMMENT ON COLUMN knowledge_points.deleted_at IS '软删除时间戳';
@@ -354,7 +361,6 @@ COMMENT ON COLUMN knowledge_points.created_at IS '创建时间';
 COMMENT ON COLUMN knowledge_points.updated_at IS '更新时间';
 COMMENT ON COLUMN knowledge_points.search_text_tsv IS '全文搜索字段';
 CREATE UNIQUE INDEX idx_knowledge_points_slug ON knowledge_points(slug);
-CREATE INDEX idx_knowledge_points_topic_id ON knowledge_points(topic_id);
 CREATE INDEX idx_knowledge_points_active ON knowledge_points(id) WHERE deleted_at IS NULL;
 CREATE INDEX idx_knowledge_points_search ON knowledge_points USING GIN (search_text_tsv);
 
@@ -364,6 +370,18 @@ CREATE TABLE knowledge_point_tags (
   tag_id BIGINT NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   PRIMARY KEY (knowledge_point_id, tag_id)
 );
+
+-- 4. 新建主题-知识点多对多表
+CREATE TABLE topic_knowledge_points (
+  topic_id BIGINT NOT NULL REFERENCES topics(id) ON DELETE CASCADE,
+  knowledge_point_id BIGINT NOT NULL REFERENCES knowledge_points(id) ON DELETE CASCADE,
+  PRIMARY KEY (topic_id, knowledge_point_id)
+);
+COMMENT ON TABLE topic_knowledge_points IS '主题与知识点的多对多关系表';
+COMMENT ON COLUMN topic_knowledge_points.topic_id IS '主题ID，外键关联topics';
+COMMENT ON COLUMN topic_knowledge_points.knowledge_point_id IS '知识点ID，外键关联knowledge_points';
+CREATE INDEX idx_topic_knowledge_points_topic_id ON topic_knowledge_points(topic_id);
+CREATE INDEX idx_topic_knowledge_points_knowledge_point_id ON topic_knowledge_points(knowledge_point_id);
 
 -- 5. 题目表
 CREATE TABLE questions (

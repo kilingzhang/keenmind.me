@@ -1,35 +1,12 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["driverAdapters"]
-  output          = "client"
 }
 
 datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_DATABASE_URL")
-}
-
-/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model ability_points {
-  id              BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
-  slug            String                   @unique @db.Citext
-  domain_zh       String                   @default("")
-  domain_en       String                   @default("")
-  name_zh         String                   @default("")
-  name_en         String                   @default("")
-  description_zh  String?
-  description_en  String?
-  aliases         Json                     @default("{}")
-  tags            Json                     @default("{}")
-  search_text_tsv Unsupported("tsvector")?
-  deleted_at      DateTime?                @db.Timestamptz(6)
-  created_at      DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_at      DateTime                 @default(now()) @db.Timestamptz(6)
-
-  @@index([aliases], map: "idx_ability_points_aliases", type: Gin)
-  @@index([search_text_tsv], map: "idx_ability_points_search", type: Gin)
-  @@index([tags], map: "idx_ability_points_tags", type: Gin)
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
@@ -112,102 +89,243 @@ model credentials {
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model knowledge_points {
-  id                BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
-  slug              String                   @unique @db.Citext
-  name_zh           String                   @default("")
-  name_en           String                   @default("")
-  definition_zh     String?
-  definition_en     String?
-  aliases           Json                     @default("{}")
-  tags              Json                     @default("{}")
-  ability_point_ids Json                     @default("[]")
-  search_text_tsv   Unsupported("tsvector")?
-  deleted_at        DateTime?                @db.Timestamptz(6)
-  created_at        DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_at        DateTime                 @default(now()) @db.Timestamptz(6)
-  question_variants question_variants[]
+model domain_topics {
+  domain_id BigInt
+  topic_id  BigInt
+  domains   domains @relation(fields: [domain_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  topics    topics  @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
-  @@index([aliases], map: "idx_knowledge_points_aliases", type: Gin)
-  @@index([search_text_tsv], map: "idx_knowledge_points_search", type: Gin)
-  @@index([tags], map: "idx_knowledge_points_tags", type: Gin)
+  @@id([domain_id, topic_id])
+  @@index([domain_id], map: "idx_domain_topics_domain_id")
+  @@index([topic_id], map: "idx_domain_topics_topic_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
-model question_variants {
-  id                         BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
-  type                       String                   @default("open-ended") @db.VarChar(20)
-  language                   String?                  @db.VarChar(20)
-  difficulty                 String                   @default("medium") @db.VarChar(10)
-  source                     String?                  @default("official") @db.VarChar(50)
-  primary_knowledge_point_id BigInt
-  auxiliary_knowledge_points Json                     @default("[]")
-  tags                       Json                     @default("{}")
-  title_zh                   String                   @default("")
-  title_en                   String                   @default("")
-  description_zh             String?
-  description_en             String?
-  search_text_tsv            Unsupported("tsvector")?
-  deleted_at                 DateTime?                @db.Timestamptz(6)
-  created_at                 DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_at                 DateTime                 @default(now()) @db.Timestamptz(6)
-  knowledge_points           knowledge_points         @relation(fields: [primary_knowledge_point_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  standard_answers           standard_answers[]
-  user_answers               user_answers[]
+model domains {
+  id             BigInt          @id @default(autoincrement())
+  slug           String          @unique @db.Citext
+  name_zh        String
+  name_en        String
+  description_zh String?
+  description_en String?
+  icon           String?
+  sort_order     Int?            @default(0)
+  extra          Json?           @default("{}")
+  deleted_at     DateTime?       @db.Timestamptz(6)
+  created_at     DateTime        @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime        @default(now()) @db.Timestamptz(6)
+  domain_topics  domain_topics[]
+}
 
-  @@index([difficulty], map: "idx_question_variants_difficulty")
-  @@index([language], map: "idx_question_variants_language")
-  @@index([search_text_tsv], map: "idx_question_variants_search", type: Gin)
-  @@index([tags], map: "idx_question_variants_tags", type: Gin)
-  @@index([type], map: "idx_question_variants_type")
+model knowledge_point_tags {
+  knowledge_point_id BigInt
+  tag_id             BigInt
+  knowledge_points   knowledge_points @relation(fields: [knowledge_point_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tags               tags             @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([knowledge_point_id, tag_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model knowledge_points {
+  id                               BigInt                             @id @default(autoincrement())
+  slug                             String                             @unique(map: "idx_knowledge_points_slug") @db.Citext
+  name_zh                          String
+  name_en                          String
+  definition_zh                    String?
+  definition_en                    String?
+  aliases                          Json                               @default("{}")
+  extra                            Json?                              @default("{}")
+  deleted_at                       DateTime?                          @db.Timestamptz(6)
+  created_at                       DateTime                           @default(now()) @db.Timestamptz(6)
+  updated_at                       DateTime                           @default(now()) @db.Timestamptz(6)
+  search_text_tsv                  Unsupported("tsvector")?
+  knowledge_point_tags             knowledge_point_tags[]
+  question_aux_knowledge_points    question_aux_knowledge_points[]
+  questions                        questions[]
+  standard_answer_knowledge_points standard_answer_knowledge_points[]
+  topic_knowledge_points           topic_knowledge_points[]
+
+  @@index([search_text_tsv], map: "idx_knowledge_points_search", type: Gin)
+}
+
+model question_aux_knowledge_points {
+  question_id        BigInt
+  knowledge_point_id BigInt
+  knowledge_points   knowledge_points @relation(fields: [knowledge_point_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  questions          questions        @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([question_id, knowledge_point_id])
+}
+
+model question_tags {
+  question_id BigInt
+  tag_id      BigInt
+  questions   questions @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tags        tags      @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([question_id, tag_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model questions {
+  id                            BigInt                          @id @default(dbgenerated("generate_numeric_id(15)"))
+  type                          String                          @default("open-ended") @db.VarChar(20)
+  language                      String?                         @db.VarChar(20)
+  difficulty                    String                          @default("medium") @db.VarChar(10)
+  source                        String?                         @default("official") @db.VarChar(50)
+  primary_knowledge_point_id    BigInt
+  title_zh                      String
+  title_en                      String
+  description_zh                String?
+  description_en                String?
+  extra                         Json?                           @default("{}")
+  deleted_at                    DateTime?                       @db.Timestamptz(6)
+  created_at                    DateTime                        @default(now()) @db.Timestamptz(6)
+  updated_at                    DateTime                        @default(now()) @db.Timestamptz(6)
+  search_text_tsv               Unsupported("tsvector")?
+  question_aux_knowledge_points question_aux_knowledge_points[]
+  question_tags                 question_tags[]
+  knowledge_points              knowledge_points                @relation(fields: [primary_knowledge_point_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  standard_answers              standard_answers[]
+  user_answers                  user_answers[]
+
+  @@index([difficulty], map: "idx_questions_difficulty")
+  @@index([language], map: "idx_questions_language")
+  @@index([primary_knowledge_point_id], map: "idx_questions_primary_knowledge_point_id")
+  @@index([search_text_tsv], map: "idx_questions_search", type: Gin)
+  @@index([type], map: "idx_questions_type")
+}
+
+model standard_answer_knowledge_points {
+  standard_answer_id BigInt
+  knowledge_point_id BigInt
+  knowledge_points   knowledge_points @relation(fields: [knowledge_point_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  standard_answers   standard_answers @relation(fields: [standard_answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([standard_answer_id, knowledge_point_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model standard_answer_tags {
+  standard_answer_id BigInt
+  tag_id             BigInt
+  standard_answers   standard_answers @relation(fields: [standard_answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tags               tags             @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([standard_answer_id, tag_id])
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model standard_answers {
-  id                  BigInt                   @id @default(dbgenerated("generate_numeric_id(15)"))
-  question_id         BigInt
-  user_id             BigInt?
-  is_system           Boolean                  @default(false)
-  source              String                   @default("official") @db.VarChar(20)
-  is_featured         Boolean?                 @default(false)
-  used_as_primary     BigInt?                  @default(0)
-  upvotes             BigInt?                  @default(0)
-  bookmark            BigInt?                  @default(0)
-  answer_type         String?                  @default("explanation") @db.VarChar(20)
-  knowledge_point_ids Json                     @default("[]")
-  content_zh          String                   @default("")
-  content_en          String                   @default("")
-  search_text_tsv     Unsupported("tsvector")?
-  deleted_at          DateTime?                @db.Timestamptz(6)
-  created_at          DateTime                 @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime                 @default(now()) @db.Timestamptz(6)
-  question_variants   question_variants        @relation(fields: [question_id], references: [id], onUpdate: NoAction)
-  users               users?                   @relation(fields: [user_id], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  id                               BigInt                             @id @default(dbgenerated("generate_numeric_id(15)"))
+  question_id                      BigInt
+  user_id                          BigInt?
+  is_system                        Boolean                            @default(false)
+  source                           String                             @default("official") @db.VarChar(20)
+  is_featured                      Boolean?                           @default(false)
+  answer_type                      String?                            @default("explanation") @db.VarChar(20)
+  content_zh                       String
+  content_en                       String
+  extra                            Json?                              @default("{}")
+  deleted_at                       DateTime?                          @db.Timestamptz(6)
+  created_at                       DateTime                           @default(now()) @db.Timestamptz(6)
+  updated_at                       DateTime                           @default(now()) @db.Timestamptz(6)
+  standard_answer_knowledge_points standard_answer_knowledge_points[]
+  standard_answer_tags             standard_answer_tags[]
+  questions                        questions                          @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users                            users?                             @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
 
   @@index([answer_type], map: "idx_standard_answers_answer_type")
   @@index([is_featured], map: "idx_standard_answers_is_featured")
-  @@index([knowledge_point_ids], map: "idx_standard_answers_knowledge_points", type: Gin)
   @@index([question_id], map: "idx_standard_answers_question_id")
-  @@index([search_text_tsv], map: "idx_standard_answers_search", type: Gin)
   @@index([user_id], map: "idx_standard_answers_user_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model tags {
+  id                   BigInt                   @id @default(autoincrement())
+  slug                 String                   @unique(map: "idx_tags_slug") @db.Citext
+  name_zh              String
+  name_en              String
+  type                 String?                  @db.VarChar(32)
+  parent_id            BigInt?
+  description_zh       String?
+  description_en       String?
+  extra                Json?                    @default("{}")
+  deleted_at           DateTime?                @db.Timestamptz(6)
+  created_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime                 @default(now()) @db.Timestamptz(6)
+  search_text_tsv      Unsupported("tsvector")?
+  knowledge_point_tags knowledge_point_tags[]
+  question_tags        question_tags[]
+  standard_answer_tags standard_answer_tags[]
+  tags                 tags?                    @relation("tagsTotags", fields: [parent_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  other_tags           tags[]                   @relation("tagsTotags")
+  user_answer_tags     user_answer_tags[]
+
+  @@index([parent_id], map: "idx_tags_parent_id")
+  @@index([search_text_tsv], map: "idx_tags_search", type: Gin)
+  @@index([type], map: "idx_tags_type")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model topic_knowledge_points {
+  topic_id           BigInt
+  knowledge_point_id BigInt
+  knowledge_points   knowledge_points @relation(fields: [knowledge_point_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  topics             topics           @relation(fields: [topic_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([topic_id, knowledge_point_id])
+  @@index([knowledge_point_id], map: "idx_topic_knowledge_points_knowledge_point_id")
+  @@index([topic_id], map: "idx_topic_knowledge_points_topic_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model topics {
+  id                     BigInt                   @id @default(autoincrement())
+  slug                   String                   @unique(map: "idx_topics_slug") @db.Citext
+  name_zh                String
+  name_en                String
+  description_zh         String?
+  description_en         String?
+  sort_order             Int?                     @default(0)
+  extra                  Json?                    @default("{}")
+  deleted_at             DateTime?                @db.Timestamptz(6)
+  created_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  updated_at             DateTime                 @default(now()) @db.Timestamptz(6)
+  domain_topics          domain_topics[]
+  topic_knowledge_points topic_knowledge_points[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model user_answer_tags {
+  user_answer_id BigInt
+  tag_id         BigInt
+  tags           tags         @relation(fields: [tag_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user_answers   user_answers @relation(fields: [user_answer_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([user_answer_id, tag_id])
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model user_answers {
-  id                BigInt            @id @default(dbgenerated("generate_numeric_id(15)"))
-  user_id           BigInt
-  question_id       BigInt
-  input_language    String            @default("zh") @db.VarChar(10)
-  audio_url         String?
-  transcribed_text  String?
-  answer_text       String            @default("")
-  quality_score     Decimal?          @default(0.00) @db.Decimal(3, 2)
-  score_detail      Json?
-  created_at        DateTime?         @default(now()) @db.Timestamptz(6)
-  deleted_at        DateTime?         @db.Timestamptz(6)
-  updated_at        DateTime          @default(now()) @db.Timestamptz(6)
-  question_variants question_variants @relation(fields: [question_id], references: [id], onUpdate: NoAction)
-  users             users             @relation(fields: [user_id], references: [id], onUpdate: NoAction)
+  id               BigInt             @id @default(dbgenerated("generate_numeric_id(15)"))
+  user_id          BigInt
+  question_id      BigInt
+  input_language   String             @default("zh") @db.VarChar(10)
+  audio_url        String?
+  transcribed_text String?
+  answer_text      String
+  quality_score    Decimal?           @default(0.00) @db.Decimal(3, 2)
+  score_detail     Json?
+  extra            Json?              @default("{}")
+  deleted_at       DateTime?          @db.Timestamptz(6)
+  created_at       DateTime?          @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  user_answer_tags user_answer_tags[]
+  questions        questions          @relation(fields: [question_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users            users              @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([quality_score], map: "idx_user_answers_quality_score")
   @@index([question_id], map: "idx_user_answers_question_id")
