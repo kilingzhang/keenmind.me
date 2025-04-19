@@ -13,6 +13,7 @@
     "prisma:reset": "bun run env:pro -- prisma migrate reset",
     "prisma:pull": "bun run env -- prisma db pull",
     "prisma:studio": "bun run env -- prisma studio",
+    "prisma:dev": "bun run env:pro -- prisma migrate dev --name",
     "generate:base": "tsx scripts/generate-routes.ts && tsx scripts/generate-db-client.ts",
     "generate:edge": "RUNTIME=edge bun run generate:base",
     "generate:node": "RUNTIME=nodejs bun run generate:base",

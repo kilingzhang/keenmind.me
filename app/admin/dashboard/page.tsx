@@ -4,6 +4,8 @@ import dynamic from 'next/dynamic'
 import { CheckCircleOutlined, UserOutlined, DatabaseOutlined, CloudServerOutlined } from '@ant-design/icons'
 import { Row, Col, Typography } from 'antd'
 
+export const runtime = 'nodejs';
+
 const { Title, Paragraph } = Typography
 
 // 动态导入组件
@@ -14,8 +16,6 @@ const ProCard = dynamic(() => import('@ant-design/pro-components').then(mod => m
 const StatisticCard = dynamic(() => import('@ant-design/pro-components').then(mod => mod.StatisticCard), {
     loading: () => <div className="animate-pulse bg-gray-100/50 h-[100px] rounded-3xl" />
 })
-
-export const runtime = 'nodejs';
 
 export default function AdminDashboard() {
     return (
@@ -89,28 +89,6 @@ export default function AdminDashboard() {
                     </div>
                 </ProCard>
             </div>
-
-            <style jsx global>{`
-                .ant-statistic-title {
-                    color: #64748b !important;
-                    font-size: 14px !important;
-                }
-                .ant-statistic-content {
-                    font-size: 24px !important;
-                    font-weight: 600 !important;
-                    color: #334155 !important;
-                }
-                .ant-pro-card-statistic-description {
-                    color: #94a3b8 !important;
-                }
-                .ant-pro-card-statistic {
-                    padding: 24px !important;
-                }
-                .ant-pro-card-title {
-                    color: #334155 !important;
-                    font-weight: 500 !important;
-                }
-            `}</style>
         </div>
     )
 } 

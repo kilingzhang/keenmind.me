@@ -4,9 +4,10 @@ import { useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import type { ProColumns, ActionType, RequestData } from '@ant-design/pro-components'
 import { LockOutlined, UnlockOutlined, SearchOutlined, ReloadOutlined, DownloadOutlined, UserSwitchOutlined, MoreOutlined, EditOutlined, CheckCircleOutlined, LoginOutlined, CalendarOutlined } from '@ant-design/icons'
-import { Tag, Button, Space, Modal, message as staticMessage, Tooltip, Card, Dropdown, type MenuProps, App, notification, Typography } from 'antd'
+import { Tag, Button, Space, Tooltip, Card, Dropdown, type MenuProps, App, notification, Typography } from 'antd'
 import dayjs from 'dayjs'
 import type { users, UserStatus } from '@/prisma/client'
+import "../common-table-style.css"
 
 interface UsersResponse {
     items: users[]
@@ -582,93 +583,6 @@ function UserListContent() {
                 }}
                 className="user-table"
             />
-
-            <style jsx global>{`
-                .user-list-card {
-                    border-radius: 12px;
-                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-                    overflow: hidden;
-                }
-                
-                .user-table .ant-pro-table-search {
-                    margin-bottom: 24px;
-                    padding: 24px;
-                    background: linear-gradient(to right, #f8f9fa, #ffffff);
-                    border-radius: 8px;
-                }
-                
-                .user-table .ant-table-thead > tr > th {
-                    background-color: #fafafa;
-                    font-weight: 600;
-                }
-                
-                .user-table .ant-table-tbody > tr:hover > td {
-                    background-color: #f0f7ff;
-                }
-                
-                .user-table .ant-table-tbody > tr.ant-table-row-selected > td {
-                    background-color: #e6f7ff;
-                }
-                
-                .status-tag {
-                    border-radius: 12px;
-                    padding: 0 10px;
-                    font-weight: 500;
-                }
-                
-                .status-active {
-                    background-color: #f6ffed;
-                    border-color: #b7eb8f;
-                }
-                
-                .status-inactive {
-                    background-color: #f9f9f9;
-                    border-color: #d9d9d9;
-                }
-                
-                .status-locked {
-                    background-color: #fff7e6;
-                    border-color: #ffd591;
-                }
-                
-                .status-banned {
-                    background-color: #fff1f0;
-                    border-color: #ffa39e;
-                }
-                
-                .verified-tag {
-                    display: inline-flex;
-                    align-items: center;
-                    border-radius: 10px;
-                    font-size: 12px;
-                }
-                
-                .action-button:hover {
-                    background-color: #f0f0f0;
-                    border-radius: 50%;
-                }
-                
-                .batch-action-button, .export-button {
-                    border-radius: 4px;
-                    height: 32px;
-                    font-size: 13px;
-                    margin-right: 8px;
-                }
-                
-                .search-button, .reset-button {
-                    border-radius: 15px;
-                    height: 28px;
-                    font-size: 12px;
-                    margin-left: 4px;
-                }
-                
-                .user-id {
-                    font-family: monospace;
-                    background: #f5f5f5;
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                }
-            `}</style>
         </Card>
     )
 }

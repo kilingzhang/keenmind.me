@@ -41,6 +41,16 @@ const nextConfig = {
         destination: '/admin/dashboard',
         permanent: true,
       },
+      {
+        source: '/admin/domains',
+        destination: '/admin/domains/list',
+        permanent: true,
+      },
+      {
+        source: '/admin/users',
+        destination: '/admin/users/list',
+        permanent: true,
+      },
     ];
   },
   images: {
