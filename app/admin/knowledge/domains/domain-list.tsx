@@ -66,14 +66,14 @@ function DomainList() {
         try {
             const values = await form.validateFields()
             if (editing) {
-                await fetch(`/admin/api/domains/${editing.id}`, {
+                await fetch(`/admin/api/knowledge/domains/${editing.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(values),
                 })
                 staticMessage.success('更新成功')
             } else {
-                await fetch('/admin/api/domains', {
+                await fetch('/admin/api/knowledge/domains', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(values),
@@ -106,7 +106,7 @@ function DomainList() {
             icon: <ExclamationCircleOutlined />,
             onOk: async () => {
                 try {
-                    await Promise.all(toDelete.map(row => fetch(`/admin/api/domains/${row.id}`, { method: 'DELETE' })))
+                    await Promise.all(toDelete.map(row => fetch(`/admin/api/knowledge/domains/${row.id}`, { method: 'DELETE' })))
                     staticMessage.success(`${rows ? '' : '批量'}删除成功`)
                     setSelectedRows([])
                     setSelectedRowKeys([])
@@ -209,7 +209,7 @@ function DomainList() {
                         pageSize: (pageSize || 10).toString(),
                         ...validFilters,
                     })
-                    const res = await fetch(`/admin/api/domains?${queryParams}`)
+                    const res = await fetch(`/admin/api/knowledge/domains?${queryParams}`)
                     const json = await res.json() as any
                     return {
                         data: json.data,

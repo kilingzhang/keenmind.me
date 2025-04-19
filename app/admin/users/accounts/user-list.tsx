@@ -95,7 +95,7 @@ function UserListContent() {
             if (!confirmed) return
 
             setLoading(record.id.toString(), true)
-            const response = await fetch(`/admin/api/users/${record.id}/lock`, {
+            const response = await fetch(`/admin/api/users/accounts/${record.id}/lock`, {
                 method: 'POST',
             })
 
@@ -139,7 +139,7 @@ function UserListContent() {
             if (!confirmed) return
 
             setLoading(record.id.toString(), true)
-            const response = await fetch(`/admin/api/users/${record.id}/unlock`, {
+            const response = await fetch(`/admin/api/users/accounts/${record.id}/unlock`, {
                 method: 'POST',
             })
 
@@ -203,7 +203,7 @@ function UserListContent() {
 
             // 批量处理
             const promises = selectedRows.map(user =>
-                fetch(`/admin/api/users/${user.id}/${action}`, {
+                fetch(`/admin/api/users/accounts/${user.id}/${action}`, {
                     method: 'POST',
                 })
             )
@@ -463,7 +463,7 @@ function UserListContent() {
                             }
                         })
 
-                        const response = await fetch(`/admin/api/users?${queryParams}`, {
+                        const response = await fetch(`/admin/api/users/accounts?${queryParams}`, {
                             cache: 'no-cache'
                         })
 
