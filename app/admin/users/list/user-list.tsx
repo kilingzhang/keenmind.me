@@ -7,7 +7,6 @@ import { LockOutlined, UnlockOutlined, SearchOutlined, ReloadOutlined, DownloadO
 import { Tag, Button, Space, Tooltip, Card, Dropdown, type MenuProps, App, notification, Typography } from 'antd'
 import dayjs from 'dayjs'
 import type { users, UserStatus } from '@/prisma/client'
-import "../common-table-style.css"
 
 interface UsersResponse {
     items: users[]
