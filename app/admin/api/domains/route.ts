@@ -8,7 +8,10 @@ export async function GET(req: NextRequest) {
     const page = Number(searchParams.get('page') || 1)
     const pageSize = Number(searchParams.get('pageSize') || 10)
     const search = searchParams.get('search') || ''
-    const result = await getDomains({ page, pageSize, search })
+    const name_zh = searchParams.get('name_zh') || undefined
+    const name_en = searchParams.get('name_en') || undefined
+    const slug = searchParams.get('slug') || undefined
+    const result = await getDomains({ page, pageSize, search, name_zh, name_en, slug })
     return NextResponse.json(result)
 }
 

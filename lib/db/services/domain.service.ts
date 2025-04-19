@@ -1,17 +1,20 @@
 import { prisma } from '../index';
 
-export async function getDomains({ page = 1, pageSize = 10, search = '' }: { page?: number, pageSize?: number, search?: string }) {
-    const where = {
+export async function getDomains({ page = 1, pageSize = 10, search = '', name_zh, name_en, slug }: { page?: number, pageSize?: number, search?: string, name_zh?: string, name_en?: string, slug?: string }) {
+    const where: any = {
         deleted_at: null,
-        ...(search
-            ? {
-                OR: [
-                    { name_zh: { contains: search } },
-                    { name_en: { contains: search } },
-                    { slug: { contains: search } },
-                ],
-            }
-            : {})
+    };
+    // 精确筛选优先
+    if (name_zh) where.name_zh = name_zh;
+    if (name_en) where.name_en = name_en;
+    if (slug) where.slug = slug;
+    // 只有没有精确筛选时才用 search
+    if (!name_zh && !name_en && !slug && search) {
+        where.OR = [
+            { name_zh: { contains: search } },
+            { name_en: { contains: search } },
+            { slug: { contains: search } },
+        ];
     }
     const [data, total] = await Promise.all([
         prisma().domains.findMany({

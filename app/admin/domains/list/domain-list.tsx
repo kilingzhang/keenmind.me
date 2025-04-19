@@ -197,10 +197,17 @@ function DomainList() {
                 rowKey={(record: Domain) => record.id}
                 request={async (params: any): Promise<Partial<RequestData<Domain>>> => {
                     const { current, pageSize, ...filters } = params
+                    // 过滤掉空字符串和 undefined 的参数
+                    const validFilters: Record<string, any> = {}
+                    Object.entries(filters).forEach(([key, value]) => {
+                        if (value !== '' && value !== undefined) {
+                            validFilters[key] = value
+                        }
+                    })
                     const queryParams = new URLSearchParams({
                         page: (current || 1).toString(),
                         pageSize: (pageSize || 10).toString(),
-                        ...filters,
+                        ...validFilters,
                     })
                     const res = await fetch(`/admin/api/domains?${queryParams}`)
                     const json = await res.json() as any
