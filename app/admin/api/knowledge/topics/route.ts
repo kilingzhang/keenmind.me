@@ -1,0 +1,31 @@
+export const runtime = 'nodejs';
+
+import { NextRequest, NextResponse } from 'next/server'
+import { getTopics, createTopic } from '@/lib/db/services/topic.service'
+
+export async function GET(req: NextRequest) {
+    const { searchParams } = new URL(req.url)
+    const page = Number(searchParams.get('page') || 1)
+    const pageSize = Number(searchParams.get('pageSize') || 10)
+    const search = searchParams.get('search') || ''
+    const name_zh = searchParams.get('name_zh') || undefined
+    const name_en = searchParams.get('name_en') || undefined
+    const slug = searchParams.get('slug') || undefined
+    const result = await getTopics({ page, pageSize, search, name_zh, name_en, slug })
+    return NextResponse.json(result)
+}
+
+export async function POST(req: NextRequest) {
+    const data = await req.json() as {
+        slug: string
+        name_zh: string
+        name_en: string
+        description_zh?: string | null
+        description_en?: string | null
+        sort_order?: number | null
+        extra?: any
+        deleted_at?: Date | null
+    }
+    const created = await createTopic(data)
+    return NextResponse.json(created)
+} 
