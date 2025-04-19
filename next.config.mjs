@@ -42,13 +42,13 @@ const nextConfig = {
         permanent: true,
       },
       {
-        source: '/admin/domains',
-        destination: '/admin/domains/list',
+        source: '/admin/users',
+        destination: '/admin/users/accounts',
         permanent: true,
       },
       {
-        source: '/admin/users',
-        destination: '/admin/users/list',
+        source: '/admin/domains',
+        destination: '/admin/knowledge/domains',
         permanent: true,
       },
     ];

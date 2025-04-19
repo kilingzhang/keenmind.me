@@ -2,7 +2,7 @@
 
 import AdminAuthGuard from '@/components/admin/auth-guard'
 import dynamic from 'next/dynamic'
-import { HomeOutlined, UserOutlined, SettingOutlined, AppstoreOutlined } from '@ant-design/icons'
+import { HomeOutlined, UserOutlined, AppstoreOutlined, BookOutlined } from '@ant-design/icons'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import Template from './template'
@@ -31,28 +31,52 @@ const route = {
             icon: <UserOutlined />,
             routes: [
                 {
-                    path: '/admin/users/list',
-                    name: '用户列表',
+                    path: '/admin/users/accounts',
+                    name: '账户',
                 },
                 {
                     path: '/admin/users/roles',
-                    name: '角色管理',
+                    name: '角色',
                 },
                 {
                     path: '/admin/users/permissions',
-                    name: '权限设置',
+                    name: '权限',
                 }
             ]
         },
         {
-            path: '/admin/domains',
-            name: '领域管理',
-            icon: <UserOutlined />,
+            path: '/admin/knowledge',
+            name: '知识管理',
+            icon: <BookOutlined />,
             routes: [
                 {
-                    path: '/admin/domains/list',
-                    name: '领域列表',
-                }
+                    path: '/admin/knowledge/domains',
+                    name: '领域',
+                },
+                {
+                    path: '/admin/knowledge/topics',
+                    name: '主题',
+                },
+                {
+                    path: '/admin/knowledge/tags',
+                    name: '标签',
+                },
+                {
+                    path: '/admin/knowledge/points',
+                    name: '知识点',
+                },
+                {
+                    path: '/admin/knowledge/questions',
+                    name: '问题',
+                },
+                {
+                    path: '/admin/knowledge/answers',
+                    name: '答案',
+                },
+                {
+                    path: '/admin/knowledge/users-answers',
+                    name: '用户回答',
+                },
             ]
         },
         {
